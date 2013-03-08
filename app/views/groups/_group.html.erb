@@ -1,0 +1,24 @@
+<% if group.err %>
+  <tr class="error">
+<% elsif group.status && group.status.include?('Error') %>
+  <tr class="warning">
+<% elsif group.status == 'Group added'%>
+  <tr class="success">
+<% else  %>
+  <tr>
+<% end %>
+  <td><%= group.name %></td>
+  <td><%= group.uuid %></td>
+  <td><%= group.description %></td>
+  <td><%= group.location.present? ? group.location['zip'] : '' %></td>
+  <td><%= group.category %></td>
+  <td><%= group.groups_above.join(",") unless group.groups_above.empty? %></td>
+  <td><%= group.status %></td>
+  <td><%= group.err %></td>
+  <td><%= link_to 'Export', 'groups/' + group.id + '/export' unless group.uuid %></td>
+  <td><%= link_to 'Get Members', 'groups/' + group.id + '/get_members', :remote => true %></td>
+  <td><%= link_to 'Get Member Roles', 'groups/' + group.id + '/get_roles', :remote => true %></td>
+  <td><%= link_to 'Show', group %></td>
+  <td><%= link_to 'Edit', edit_group_path(group) %></td>
+  <td><%= link_to 'Delete', group, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+</tr>

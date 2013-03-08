@@ -3,5 +3,15 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 require File.expand_path('../config/application', __FILE__)
-
-OmniauthMongo::Application.load_tasks
+require 'resque/tasks'
+Rails3Importer::Application.load_tasks
+namespace :workers do
+  task :killall do
+    require 'resque'
+    Resque::Worker.all.each do |worker|
+      puts "Shutting down worker #{worker}"
+      host, pid, queues = worker.id.split(':')
+      Process.kill("QUIT", pid.to_i)
+    end
+  end
+end

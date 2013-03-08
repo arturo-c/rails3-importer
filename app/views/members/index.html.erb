@@ -1,0 +1,39 @@
+<h1>Group Members</h1>
+<%= render 'filter' %>
+
+<%= link_to 'Download CSV', params.merge(:format => 'csv', :action => :index), {:class => 'btn btn-small btn-info'} %>
+<%= link_to 'Clear Errors', {:action => :clear_errors}, {:class => 'btn btn-small', :remote => true} %>
+<%= button_tag 'Live Poll', {:id => 'live-poll-members', :class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Add Members To Groups', {:action => :add_members_job}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Get Member Roles', {:action => :get_roles}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Get Submissions', {:action => :get_submissions}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Get Webform Data', {:action => :get_webform_data}, {:class => 'btn btn-small', :remote => true} %>
+<br />
+<div id="paginator">
+  <%= paginate @members, :remote => true %>
+</div>
+<br />
+<span id="records_found"><%= @members.count %></span> records found.
+<br />
+<%= link_to 'New Member(s)', new_member_path %>
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Birthday</th>
+      <th>UUID</th>
+      <th>Group Name</th>
+      <th>Roles</th>
+      <th>Submission ID</td>
+      <th>Status</th>
+      <th>Errors</th>
+      <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>
+      <th><%= link_to 'Assign All', params.merge(:action => :assign_all), :remote => true %></th>
+    </tr>
+  </thead>
+  <tbody id="members">
+    <%= render @members %>
+  </tbody>
+</table>

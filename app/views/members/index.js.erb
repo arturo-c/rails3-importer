@@ -1,0 +1,3 @@
+$('#members').html('<%= escape_javascript render(@members) %>');
+$('#records_found').html('<%= @members.count %>');
+$('#paginator').html('<%= escape_javascript(paginate(@members, :remote => true).to_s) %>');

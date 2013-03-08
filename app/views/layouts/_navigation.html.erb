@@ -1,11 +1,14 @@
-<%= link_to "Omniauth Mongo", root_path, :class => 'brand' %>
+<%= link_to "Home", root_path, :class => 'brand' %>
 <ul class="nav">
   <% if user_signed_in? %>
     <li>
-    Logged in as <%= current_user.name %>
+    <%= link_to 'Logout', signout_path %>
     </li>
     <li>
-    <%= link_to 'Logout', signout_path %>
+    <%= link_to 'Groups', groups_path %>
+    </li>
+    <li>
+    <%= link_to 'Members', members_path %>
     </li>
   <% else %>
     <li>

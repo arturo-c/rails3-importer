@@ -1,0 +1,22 @@
+<% if (member.err && !member.err.empty?) %>
+  <tr class="error">
+<% elsif member.status.include? 'Error' %>
+  <tr class="warning">
+<% elsif member.status == 'User added to group.'%>
+  <tr class="success">
+<% else  %>
+  <tr>
+<% end %>
+  <td><%= member.email %></td>
+  <td><%= member.first_name %></td>
+  <td><%= member.last_name %></td>
+  <td><%= member.birthday[0..-10] %></td>
+  <td><%= member.uuid %></td>
+  <td><%= member.group_name %></td>
+  <td><%= member.roles if member.respond_to?(:roles) %></td>
+  <td><%= member.submission_id if member.respond_to?(:submission_id) %>
+  <td><%= member.status %></td>
+  <td><%= member.err %></td>
+  <td><%= link_to 'Import', 'members/' + member.id + '/export', :remote => true %></td>
+  <td><%= link_to 'Assign', 'members/' + member.id + '/assign', :remote => true %></td>
+</tr>

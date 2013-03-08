@@ -1,0 +1,8 @@
+<h3>Users</h3>
+<ul class="admins">
+  <% @admins.each do |admin| %>
+    <li>
+      <%= link_to admin.name, admin %> signed up <%= admin.created_at.to_date %>
+    </li>
+  <% end %>
+</ul>

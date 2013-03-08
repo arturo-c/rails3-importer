@@ -1,4 +1,5 @@
 <h3>Home</h3>
-<% @users.each do |user| %>
-  <p>User: <%=link_to user.name, user %></p>
+
+<% unless @admin_info.nil? %>
+  Logged in as: <%= @admin_info[:name] %> <%= image_tag @admin_info[:picture], :class => 'img-polaroid', :width => '100px' %>
 <% end %>

@@ -1,5 +1,8 @@
 class HomeController < ApplicationController
   def index
-    @users = User.all
+    @admins = Admin.all
+    if session[:user_info]
+      @admin_info = session[:user_info]
+    end
   end
 end

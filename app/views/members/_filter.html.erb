@@ -1,0 +1,39 @@
+<%= form_for(:filter, :remote => true, :html => {:class => "form-horizontal", :method => "get"}) do |f| %>
+<legend>Filters</legend>
+  <div class="control-group">
+    <%= f.label 'Status', :class => 'control-label', :for => 'filter_status' %>
+    <div class="controls">
+      <%= f.select :status, options_for_select(Member.all.distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Members' %>
+    </div>
+    <%= f.label 'First Name', :class => 'control-label', :for => 'filter_first_name' %>
+    <div class="controls">
+      <%= f.text_field :first_name, :placeholder => "Filter By First Name...", :value => params[:filter].present? ? params[:filter][:first_name] : '' %>
+    </div>
+    <%= f.label 'Last Name', :class => 'control-label', :for => 'filter_last_name' %>
+    <div class="controls">
+      <%= f.text_field :last_name, :placeholder => "Filter By Last Name...", :value => params[:filter].present? ? params[:filter][:last_name] : '' %>
+    </div>
+    <%= f.label 'Email', :class => 'control-label', :for => 'filter_email' %>
+    <div class="controls">
+      <%= f.text_field :email, :placeholder => "Filter By Email...", :value => params[:filter].present? ? params[:filter][:email] : '' %>
+    </div>
+    <%= f.label 'Roles', :class => 'control-label', :for => 'filter_roles' %>
+    <div class="controls">
+      <%= f.text_field :roles, :placeholder => "Filter By Roles...", :value => params[:filter].present? ? params[:filter][:roles] : '' %>
+    </div>
+    <%= f.label 'Group Name', :class => 'control-label', :for => 'filter_group_name' %>
+    <div class="controls">
+      <%= f.text_field :group_name, :placeholder => "Filter By Group Name...", :value => params[:filter].present? ? params[:filter][:group_name] : '' %>
+    </div>
+    <%= f.label 'Include Sub Groups', :class => 'control-label', :for => 'filter_subgroups' %>
+    <div class="controls">
+      <%= f.check_box :subgroups, :checked => ((params[:filter].present? && params[:filter][:subgroups] == 1) ? true : false) %>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <%= f.submit 'Search', :class => 'btn' %>
+      <%= f.submit 'Reset Filters', :class => 'btn' %>
+    </div>
+  </div>
+<% end %>

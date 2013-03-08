@@ -1,0 +1,38 @@
+<h1>Groups</h1>
+<%= render 'filter' %>
+
+<%= link_to 'Download CSV', params.merge(:format => 'csv', :action => :index), {:class => 'btn btn-small btn-info'} %>
+<%= link_to 'Clear Errors', {:action => :clear_errors}, {:class => 'btn btn-small'} %>
+<%= button_tag 'Live Poll', {:id => 'live-poll-members', :class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Export Groups To AllPlayers', {:action => :export_all}, {:class => 'btn btn-small', :remote => true} %>
+<br />
+<div id="paginator">
+  <%= paginate @groups, :remote => true %>
+</div>
+<br />
+<span id="records_found"><%= @groups.count %></span> records found.
+<br />
+<%= link_to 'Add New Group(s)', new_group_path %>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Uuid</th>
+      <th>Description</th>
+      <th>Zip Code</th>
+      <th>Category</th>
+      <th>Groups above</th>
+      <th>Status</th>
+      <th>Errors</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="groups">
+    <%= render @groups %>
+  </tbody
+</table>

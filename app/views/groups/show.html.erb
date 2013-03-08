@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Title:</b>
+  <%= @group.title %>
+</p>
+
+<p>
+  <b>Uuid:</b>
+  <%= @group.uuid %>
+</p>
+
+<p>
+  <b>User uuid:</b>
+  <%= @group.user_uuid %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @group.description %>
+</p>
+
+<p>
+  <b>Zip Code:</b>
+  <%= @group.zip %>
+</p>
+
+<p>
+  <b>Category:</b>
+  <%= @group.category %>
+</p>
+
+<p>
+  <b>Groups above:</b>
+  <%= @group.groups_above %>
+</p>
+
+
+<%= link_to 'Edit', edit_group_path(@group) %> |
+<%= link_to 'Back', groups_path %>

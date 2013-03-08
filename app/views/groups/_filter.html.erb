@@ -1,0 +1,23 @@
+<%= form_for(:filter, :remote => true, :html => {:class => "form-horizontal", :method => "get"}) do |f| %>
+<legend>Filters</legend>
+  <div class="control-group">
+    <%= f.label 'Status', :class => 'control-label', :for => 'filter_status' %>
+    <div class="controls">
+      <%= f.select :status, options_for_select(Group.all.distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Groups' %>
+    </div>
+    <%= f.label 'Name', :class => 'control-label', :for => 'filter_name' %>
+    <div class="controls">
+      <%= f.text_field :name, :placeholder => "Filter By Name...", :value => params[:filter].present? ? params[:filter][:name] : '' %>
+    </div>
+    <%= f.label 'Include Sub Groups', :class => 'control-label', :for => 'filter_subgroups' %>
+    <div class="controls">
+      <%= f.check_box :subgroups, :checked => ((params[:filter].present? && params[:filter][:subgroups] == 1) ? true : false) %>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <%= f.submit 'Filter', :class => 'btn btn-primary' %>
+      <%= f.submit 'Reset Filters', :class => 'btn' %>
+    </div>
+  </div>
+<% end %>
