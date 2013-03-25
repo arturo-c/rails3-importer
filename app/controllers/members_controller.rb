@@ -120,38 +120,44 @@ class MembersController < ApplicationController
   def export_all
     @members = @@full_members
     @members.each do |member|
-      if member.email.include? 'example.com'
-        member.email = member.email[0..-13]
-        member.save
-      end
-      #unless member.err
-        #member.get_member_uuid
-      #end
+      member.get_member_uuid
     end
     render :live
   end
 
   def import_csv
-    require 'csv'
-    parsed_file = CSV.foreach(params[:csv].tempfile,:headers => true) do |row|
-      r = row.to_hash.with_indifferent_access.symbolize_keys
-      member = Member.where(:email => r[:email], :group_name => r[:group_name], :admin_uuid => session[:user_uuid]).first
-
-      unless member.nil?
-        # Reset errors
-        member.update_attribute(:err, nil)
-
-        # Merge the new attributes.
-        attr = member.attributes.symbolize_keys
-        r = attr.merge(r)
+    count = Member.count
+    new_users = 0
+    SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 100, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
+      #Member.first.process_csv(chunk) # pass chunks of CSV-data to Resque workers for parallel processing
+      #Resque.enqueue(ProcessCsv, chunk)
+      chunk.each do |c|
+        c = process_row(c)
+        group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
+        group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
+        c[:group_name] = group.name if group
+        c[:status] = 'Group not found' unless group
       end
+      Member.collection.insert(chunk)
+    end
+    redirect_to members_url
+  end
 
-      # Process the row.
-      r = process_row(r)
-      
-      member.update_attributes(r) unless member.nil?
-      member = Member.new(r) if member.nil?
-      member.save
+  def import_csv_2
+    SmarterCSV.process(params[:csv].tempfile, {:strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
+      chunk.each do |row|
+        r = row.to_hash.with_indifferent_access.symbolize_keys
+        r = process_row(r)
+        group = Group.where(:uuid => r[:group_uuid]).first if (r[:group_uuid] && !r[:group_name])
+        group = Group.where(:name => r[:group_name]).first unless group
+        r[:group_name] = group.name if group
+        member = Member.find(r[:_id])
+        unless member.nil?
+          member.update_attributes(member.attributes.merge(r))
+          member.status = 'Group not found' unless group
+          member.save
+        end
+      end
     end
     redirect_to members_url
   end
@@ -174,6 +180,31 @@ class MembersController < ApplicationController
     @members = @@full_members
     render :live
   end
+
+  def add_to_group_and_subgroups
+    @@full_members.each do |member|
+      member.add_to_group_and_subgroups
+    end
+    @members = @@full_members
+    render :live
+  end
+
+  def remove_from_group
+    @@full_members.each do |member|
+      member.remove_from_group
+    end
+    @members = @@full_members
+    render :live
+  end
+
+  def remove_from_group_and_subgroups
+    @@full_members.each do |member|
+      member.remove_from_group_and_subgroups
+    end
+    @members = @@full_members
+    render :live
+  end
+
 
   def get_roles
     @@full_members.each do |member|
@@ -213,6 +244,15 @@ class MembersController < ApplicationController
     render :live
   end
 
+  def set_completed
+    @@full_members.each do |member|
+      member.status = params[:set_status][:status]
+      member.save
+    end
+    @members = @@full_members
+    render :live
+  end
+
   private
   def process_filter(query, params)
     query = query.where(:admin_uuid => session[:user_uuid])
@@ -220,8 +260,13 @@ class MembersController < ApplicationController
       email = params[:filter][:email]
       query = query.where(:email => /.*#{email}.*/)
     end
+    if params[:filter][:errors].present?
+      errors = params[:filter][:errors]
+      query = query.where(:err => /.*#{errors}.*/)
+    end
     query = query.where(:status => params[:filter][:status]) if params[:filter][:status].present?
     query = query.where(:first_name => params[:filter][:first_name]) if params[:filter][:first_name].present?
+    query = query.where(:member_id => params[:filter][:member_id]) if params[:filter][:member_id].present?
     query = query.where(:last_name => params[:filter][:last_name]) if params[:filter][:last_name].present?
     if params[:filter][:roles].present?
       roles = params[:filter][:roles]
@@ -263,27 +308,49 @@ class MembersController < ApplicationController
     errors = ''
     if r[:gender]
       r[:gender] = r[:gender].downcase
-      r[:gender] = 'm' if r[:gender] == 'male'
-      r[:gender] = 'f' if r[:gender] == 'female'
+      r[:gender] = 'm' if r[:gender].casecmp('male') == 0
+      r[:gender] = 'f' if r[:gender].casecmp('female') == 0
       unless r[:gender] == 'm' || r[:gender] == 'f'
         errors += 'Invalid Gender(enter m or f).'
       end
     end
     if r[:birthday]
       begin
-        date = Date.strptime(r[:birthday], "%m/%d/%Y") if r[:birthday].include? "/"
-        date = Date.parse(r[:birthday]) unless r[:birthday].include? "/"
+        if r[:birthday].include? "/"
+          d = r[:birthday].split("/")
+          if d[2].length == 2
+            year = d[2]
+            y = '20' + year if year < '15'
+            y = "19" + year if year > '14'
+            d[2] = y
+            r[:birthday] = Date.strptime(d.join('/'), "%m/%d/%Y")
+          else
+            r[:birthday] = Date.strptime(r[:birthday], "%m/%d/%Y")
+          end
+        else
+          r[:birthday] = Date.parse(r[:birthday])
+        end
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
       end
       today = Date.today
       child = today.prev_year(13)
-      if date > child
+      if r[:birthday] > child
         errors += 'Parent email is required for child under 13.' unless r[:parent_email]
       end
+      r[:birthday] = r[:birthday].to_s
     end
-    r[:err] = errors unless errors == ''
+    r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
+    r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
+    r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]
+    r[:first_name] = r[:first_name].strip
+    r[:last_name] = r[:last_name].strip
+    r[:first_name].capitalize!
+    r[:last_name].capitalize!
+    r[:uuid] = r[:uuid].strip if r[:uuid] if r[:uuid]
+    r[:err] = errors
     r[:status] = 'Invalid Data' unless errors == ''
+    r[:status] = 'Processing' if errors == ''
 
     return r
   end

@@ -6,7 +6,8 @@ class SessionsController < ApplicationController
 
   def create
     auth = request.env["omniauth.auth"]
-    AllPlayers.new(ENV["HOST"], 'oauth', auth['extra'][:access_token])
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.prepare_access_token(auth['extra']['access_token'].token, auth['extra']['access_token'].secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
     admin = Admin.where(:uuid => auth['uid'].to_s).first || Admin.create_with_omniauth(auth)
     admin.token = auth['extra']['access_token'].token
     admin.secret = auth['extra']['access_token'].secret

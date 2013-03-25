@@ -144,6 +144,11 @@ class GroupsController < ApplicationController
     @group
   end
 
+  def get_groups
+    @admin = Admin.find(session[:user_id])
+    @admin.get_admin_groups
+  end
+
   private
   def process_filter(query)
     filter = params[:filter]
