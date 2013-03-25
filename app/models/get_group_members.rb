@@ -12,7 +12,7 @@ class GetGroupMembers
       members = client.group_members_list(group.uuid, nil, {:limit => 0})
       members.each do |member|
         u = admin_client.user_get(member['uuid'])
-        m = Member.find_or_create_by({:admin_uuid => group_admin.uuid, :email => u['email'], :uuid => member['uuid'], :gender => u['gender'], :first_name => u['firstname'], :last_name => u['lastname'], :birthday => u['birthday'], :group_name => group.name, :group_uuid => group.uuid, :status => 'AllPlayers'})
+        m = Member.find_or_create_by({:admin_uuid => group_admin.uuid, :email => u['email'], :uuid => member['uuid'], :gender => u['gender'], :first_name => u['firstname'], :last_name => u['lastname'], :birthday => u['birthday'][0..-10], :group_name => group.name, :group_uuid => group.uuid, :status => 'AllPlayers'})
         if group.org_webform_uuid
           m.get_submission(group.org_webform_uuid)
         end

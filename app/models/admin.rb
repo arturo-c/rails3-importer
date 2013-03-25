@@ -1,10 +1,13 @@
 class Admin
   include Mongoid::Document
+
+  #has_many :groups
+
   field :uuid, type: String
   field :name, type: String
-  field :groups, type: String
   field :token, type: String
   field :secret, type: String
+  field :status, type: String
   field :err, type: String
   attr_accessible :uuid, :name
 

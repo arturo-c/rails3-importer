@@ -6,8 +6,8 @@ class GetMemberUuid
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
-      u = client.user_get_email(user.email)
-      if u == 'No Content'
+      u = client.user_get_email(user.email) if user.email
+      if u == 'No Content' || !user.email
         errors = ''
         errors += 'Missing first name.' unless user.first_name
         errors += 'Missing last name.' unless user.last_name
@@ -20,12 +20,15 @@ class GetMemberUuid
         if errors == ''
           user.create_member unless user.parent_email
           if user.parent_email
-            user.create_child
             parent = client.user_get_email(user.parent_email)
             unless parent == 'No Content'
               unless Member.where(:uuid => parent.first['uuid']).first
                 Member.new({:uuid => parent.first['uuid'], :status => 'Already on AllPlayers.', :email => user.parent_email}).save
               end
+              user.create_child
+            else
+              user.status = 'Parent not found'
+              user.err = 'Parent not found on allplayers'
             end
           end
           user.status = 'Ready to be imported.'
@@ -35,10 +38,14 @@ class GetMemberUuid
           user.err = errors
         end
       else
-        user.uuid = u.first['uuid']
-        user.status = 'Already on AllPlayers.'
-        user.err = nil
-        user.add_to_group if user.group_name
+        if u.first['firstname'].casecmp(user.first_name) == 0 && u.first['lastname'].casecmp(user.last_name) == 0
+          user.update_attributes(:uuid => u.first['uuid'], :birthday => u.first['birthday'][0..-10], :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
+          user.err = nil
+          user.add_to_group if user.group_name
+        else
+          user.err = "Account email doesn't match first and last name given"
+          user.status = 'Email already taken'
+        end
       end
     rescue => e
       user.err = e.to_s

@@ -10,21 +10,24 @@ class GetAdminGroups
       groups = client.user_groups_list(user.uuid, {:limit => 0})
       unless groups == 'No Content'
         groups.each do |g|
-          ap_group = {:uuid => g['uuid'], :name => g['title'], :description => g['description'], :status => 'AllPlayers', :user_uuid => user.uuid}
-          group = Group.find_or_create_by(ap_group)
-          if group.groups_above.empty?
-            group.get_group
+          group = Group.where(:uuid => g['uuid']).first
+          if group.nil?
+            ap_group = {:uuid => g['uuid'], :name => g['title'], :description => g['description'], :status => 'AllPlayers', :user_uuid => user.uuid}
+            group = Group.create(ap_group)
+            if group.groups_above.empty?
+              group.get_group
+            end
           end
         end
         raise unless Group.where(:user_uuid => user.uuid).first
-        user.groups = 'Updated at ' + Date.today.to_s
+        user.status = 'Updated at ' + Date.today.to_s
         user.err = nil
       else
-        user.groups = 'No groups found.'
+        user.status = 'No groups found.'
       end
     rescue => e
       user.err = e.to_s
-      user.groups = 'No groups found.'
+      user.status = 'No groups found.'
     end
 
     user.save

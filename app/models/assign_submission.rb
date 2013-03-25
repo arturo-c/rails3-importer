@@ -7,7 +7,8 @@ class AssignSubmission
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
       if member.submission_id
-        group = Group.where(:uuid => member.group_uuid).first
+        group = Group.where(:uuid => member.group_uuid).first if member.group_uuid
+        group = Group.where(:name => member.group_name).first unless member.group_uuid
         client.assign_submission(group.org_webform_uuid, member.submission_id, member.uuid)
       end
     rescue => e

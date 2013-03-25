@@ -1,6 +1,8 @@
 class Group
   include Mongoid::Document
 
+  #has_many :members, autosave: true
+
   field :name, type: String
   field :uuid, type: String
   field :user_uuid, type: String
@@ -14,8 +16,6 @@ class Group
   field :groups_above, type: Array, default: []
 
   index({ uuid: 1 } , { unique: true })
-
-  #has_many :roles, autosave: true
 
   def get_subgroups_members
     Resque.enqueue(GetSubgroupsMembers, self.id)
