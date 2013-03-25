@@ -3,7 +3,15 @@
   <div class="control-group">
     <%= f.label 'Status', :class => 'control-label', :for => 'filter_status' %>
     <div class="controls">
-      <%= f.select :status, options_for_select(Member.all.distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Members' %>
+      <%= f.select :status, options_for_select(Member.all.distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Members', :onchange => "status_select(this.value)" %>
+    </div>
+    <%= f.label 'Errors', :class => 'control-label', :for => 'filter_errors' %>
+    <div class="controls">
+      <%= f.text_field :errors, :placeholder => "Filter By Errors...", :value => params[:filter].present? ? params[:filter][:errors] : '' %>
+    </div>
+    <%= f.label 'Member ID', :class => 'control-label', :for => 'filter_member_id' %>
+    <div class="controls">
+      <%= f.text_field :member_id, :placeholder => "Filter By Member ID...", :value => params[:filter].present? ? params[:filter][:member_id] : '' %>
     </div>
     <%= f.label 'First Name', :class => 'control-label', :for => 'filter_first_name' %>
     <div class="controls">

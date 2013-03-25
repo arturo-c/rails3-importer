@@ -18,17 +18,21 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :title %><br />
-    <%= f.text_field :title %>
-    <%= f.hidden_field :user_uuid, :value => session[:user_uid] %>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+    <%= f.hidden_field :user_uuid, :value => session[:user_uuid] %>
   </div>
   <div class="field">
     <%= f.label :description %><br />
     <%= f.text_field :description %>
   </div>
   <div class="field">
+    <%= f.label :uuid %><br />
+    <%= f.text_field :uuid %>
+  </div>
+  <div class="field">
     <%= f.label 'Zip Code' %><br />
-    <%= f.text_field :zip %>
+    <%= f.text_field :location %>
   </div>
   <div class="field">
     <%= f.label :category %><br />
