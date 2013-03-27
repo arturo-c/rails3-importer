@@ -343,8 +343,8 @@ class MembersController < ApplicationController
     r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
     r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]
-    r[:first_name] = r[:first_name].strip
-    r[:last_name] = r[:last_name].strip
+    r[:first_name] = r[:first_name].strip if r[:first_name]
+    r[:last_name] = r[:last_name].strip if r[:last_name]
     r[:first_name].capitalize!
     r[:last_name].capitalize!
     r[:uuid] = r[:uuid].strip if r[:uuid] if r[:uuid]

@@ -10,7 +10,7 @@ set :ssh_options,     { :forward_agent => true }
 set :rails_env,       "production"
 set :deploy_to,       "/home/ubuntu/org-manager"
 set :normalize_asset_timestamps, false
-set :domain, "ec2-54-234-37-162.compute-1.amazonaws.com"
+set :domain, "ec2-54-225-169-159.compute-1.amazonaws.com"
 set :rvm_type, :user
 set :rvm_ruby_string, "allplayers-importer@ruby-1.9.3-p392"
 
@@ -38,11 +38,12 @@ default_environment["GEM_HOME"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allpl
 default_environment["GEM_PATH"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allplayers-importer:/usr/local/rvm/gems/ruby-1.9.3-p392@global"
 default_environment["RUBY_VERSION"] = "ruby-1.9.3-p392"
 
+default_environment["RAILS_ROOT"]   = "/home/ubuntu/org-manager/current"
 default_run_options[:shell] = 'bash'
 
-namespace :rvm do
-  task :trust_rvmrc do
-    run "rvm rvmrc trust #{release_path}"
+namespace :bundle do
+  task :install do
+    run "cd #{current_path}; bundle install"
   end
 end
 
@@ -66,6 +67,7 @@ namespace :deploy do
     run "sudo sed -i 's/shareobjects/#shareobjects/g' /etc/redis/redis.conf"
     run "sudo sed -i 's/shareobjectspoolsize/#shareobjectspoolsize/g' /etc/redis/redis.conf"
     start_redis
+    start
   end
 
   task :cold do
@@ -177,5 +179,5 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-
+before "deploy", "bundle:install"
 after "deploy", "deploy:restart_resque_web", "deploy:stop_resque_workers", "deploy:start_god"
