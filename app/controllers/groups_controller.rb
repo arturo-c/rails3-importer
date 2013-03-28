@@ -121,6 +121,7 @@ class GroupsController < ApplicationController
       row = row.to_hash.with_indifferent_access
       formatted_row = row.to_hash.symbolize_keys
       formatted_row[:user_uuid] = session[:user_uid]
+      formatted_row[:org_webform_uuid] = ENV["WEBFORM_UUID"]
       Group.create!(formatted_row)
     end
     redirect_to groups_url
