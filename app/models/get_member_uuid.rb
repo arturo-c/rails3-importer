@@ -39,7 +39,7 @@ class GetMemberUuid
         end
       else
         if u.first['firstname'].casecmp(user.first_name) == 0 && u.first['lastname'].casecmp(user.last_name) == 0
-          user.update_attributes(:uuid => u.first['uuid'], :birthday => u.first['birthday'][0..-10], :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
+          user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
           user.err = nil
           user.add_to_group if user.group_name
         else
