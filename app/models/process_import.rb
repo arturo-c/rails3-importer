@@ -3,7 +3,7 @@ class ProcessImport
 
   def self.perform(admin_id, chunk)
     chunk.each do |c|
-      c = process_row(c, admin_id)
+      c = process_rows(c, admin_id)
       group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
       group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
       c[:group_name] = group.name if group
@@ -13,8 +13,7 @@ class ProcessImport
     Member.collection.insert(chunk)
   end
 
-  private
-  def self.process_row(r, admin_id)
+  def self.process_rows(r, admin_id)
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
@@ -52,10 +51,10 @@ class ProcessImport
         if r[:birthday] > child
           errors += 'Parent email is required for child under 13.' unless r[:parent_email]
         end
-        r[:birthday] = r[:birthday].to_s
       else
         errors += 'Invalid Date(use format 1985-08-22).'
       end
+      r[:birthday] = r[:birthday].to_s if r[:birthday]
     end
     r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
