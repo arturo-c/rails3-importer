@@ -339,7 +339,7 @@ class MembersController < ApplicationController
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
       end
-      if r[:birthday].is_a?(Date)
+      if r[:birthday].is_date?
       	today = Date.today
       	child = today.prev_year(13)
       	if r[:birthday] > child

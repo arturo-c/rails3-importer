@@ -7,7 +7,8 @@ class ProcessImport
       group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
       group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
       c[:group_name] = group.name if group
-      c[:status] = 'Group not found' unless group
+      c[:err] += 'Group not found' unless group
+      c[:status = 'Invalid Data' unless group
     end
     Member.collection.insert(chunk)
   end
@@ -45,7 +46,7 @@ class ProcessImport
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
       end
-      if r[:birthday].is_a?(Date)
+      if r[:birthday].is_date?
         today = Date.today
         child = today.prev_year(13)
         if r[:birthday] > child
