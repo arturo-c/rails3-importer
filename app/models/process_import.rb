@@ -16,7 +16,6 @@ class ProcessImport
 
   def self.process_import(r, admin_id)
     admin = Admin.find(admin_id)
-    r.to_hash.with_indifferent_access.symbolize_keys
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
     errors = ''
@@ -46,16 +45,15 @@ class ProcessImport
         end
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
-      else
-        today = Date.today
-        child = today.prev_year(13)
-        if r[:birthday] > child
-          errors += 'Parent email is required for child under 13.' unless r[:parent_email]
-        end
-        r[:birthday] = r[:birthday].to_s
       end
+      today = Date.today
+      child = today.prev_year(13)
+      if r[:birthday] > child
+        errors += 'Parent email is required for child under 13.' unless r[:parent_email]
+      end
+      r[:birthday] = r[:birthday].to_s
     end
-    r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
+    r['roles'] = r['roles'].split(",").collect(&:strip) if r['roles']
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
     r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]
     r[:first_name] = r[:first_name].strip.capitalize! if r[:first_name]
