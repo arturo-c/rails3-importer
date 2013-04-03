@@ -110,6 +110,13 @@ class MembersController < ApplicationController
       format.json { head :no_content }
     end
   end
+ 
+  def destroy_all
+    @members = @@full_members
+    @members.each do |member|
+      member.destroy
+    end
+  end
 
   def export
     @member = Member.find(params[:id])

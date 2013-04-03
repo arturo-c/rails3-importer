@@ -42,7 +42,7 @@
       <th>Errors</th>
       <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>
       <th><%= link_to 'Assign All', params.merge(:action => :assign_all), :remote => true %></th>
-      <td><td>
+      <th><%= link_to 'Remove All', params.merge(:action => :destroy_all), :remote => true %></th>
     </tr>
   </thead>
   <tbody id="members">
