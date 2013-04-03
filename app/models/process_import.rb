@@ -4,7 +4,8 @@ class ProcessImport
   def self.perform(admin_id, chunk)
     chunk.collect! { |c|
       group = Group.where(:name => c['group_name']).first
-      c = process_import(c, admin_id)
+      c = self.process_import(c, admin_id)
+      c[:group_uuid] = group.uuid if group
       c
       #group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
       #c[:group_name] = group.name if group
