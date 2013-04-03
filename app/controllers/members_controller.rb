@@ -144,7 +144,7 @@ class MembersController < ApplicationController
         #c[:group_name] = group.name if group
         #c[:status] = 'Group not found' unless group
       #end
-      Member.collection.insert(chunk)
+      #Member.collection.insert(chunk)
     end
     redirect_to members_url
   end

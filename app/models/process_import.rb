@@ -4,8 +4,7 @@ class ProcessImport
   def self.perform(admin_id, chunk)
     chunk.collect! { |c|
       group = Group.where(:name => c['group_name']).first
-      c = process_rows(c, admin_id)
-      c[:err] = group.to_yaml if group
+      c = process_import(c, admin_id)
       c
       #group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
       #c[:group_name] = group.name if group
@@ -16,10 +15,11 @@ class ProcessImport
     Member.collection.insert(chunk)
   end
 
-  def self.process_rows(r, admin_id)
+  def self.process_import(r, admin_id)
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
+    r[:errors] = ''
     if r[:gender]
       r[:gender] = r[:gender].downcase
       r[:gender] = 'm' if r[:gender].casecmp('male') == 0
