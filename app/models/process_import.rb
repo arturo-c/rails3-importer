@@ -13,7 +13,7 @@ class ProcessImport
   end
 
   private
-  def process_row(r, admin_id)
+  def self.process_row(r, admin_id)
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
