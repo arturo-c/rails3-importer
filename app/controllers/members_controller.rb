@@ -134,18 +134,16 @@ class MembersController < ApplicationController
   end
 
   def import_csv
-    count = Member.count
-    new_users = 0
+    admin = Admin.where('uuid' => session[:user_uuid]).first
     SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 100, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
-      #Member.first.process_csv(chunk) # pass chunks of CSV-data to Resque workers for parallel processing
-      #Resque.enqueue(ProcessCsv, chunk)
-      chunk.each do |c|
-        c = process_row(c)
-        group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
-        group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
-        c[:group_name] = group.name if group
-        c[:status] = 'Group not found' unless group
-      end
+      admin.process_import(chunk)
+      #chunk.each do |c|
+        #c = process_row(c)
+        #group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
+        #group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
+        #c[:group_name] = group.name if group
+        #c[:status] = 'Group not found' unless group
+      #end
       Member.collection.insert(chunk)
     end
     redirect_to members_url

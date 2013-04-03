@@ -21,5 +21,9 @@ class Admin
   def get_admin_groups
     Resque.enqueue(GetAdminGroups, self.id)
   end
+ 
+  def process_import
+    Resque.enqueue(ProcessImport, self.id, chunk)
+  end
 
 end
