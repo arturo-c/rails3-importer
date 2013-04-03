@@ -3,21 +3,20 @@ class ProcessImport
 
   def self.perform(admin_id, chunk)
     chunk.collect! { |c|
-      group = Group.where(:name => c['group_name']).first
       c = self.process_import(c, admin_id)
+      group = Group.where(:uuid => c['group_uuid']).first if c['group_uuid']
+      group = Group.where(:name => c['group_name']).first unless c['group_uuid']
       c[:group_uuid] = group.uuid if group
+      c[:group_name] = group.name if group
+      c[:status] = 'Group Not Found' unless group
       c
-      #group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
-      #c[:group_name] = group.name if group
-      #c[:group_uuid] = group.uuid if group
-      #c[:err] = c.to_yaml unless group
-      #c[:status] = 'Invalid Data' unless group
     }
     Member.collection.insert(chunk)
   end
 
   def self.process_import(r, admin_id)
     admin = Admin.find(admin_id)
+    r.to_hash.with_indifferent_access.symbolize_keys
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
     errors = ''
