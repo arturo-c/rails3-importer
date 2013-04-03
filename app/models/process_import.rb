@@ -17,7 +17,7 @@ class ProcessImport
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
-    errors = ''
+    errors = r.to_yaml
     if r[:gender]
       r[:gender] = r[:gender].downcase
       r[:gender] = 'm' if r[:gender].casecmp('male') == 0
@@ -63,8 +63,6 @@ class ProcessImport
     r[:last_name] = r[:last_name].strip if r[:last_name]
     r[:first_name].capitalize! if r[:first_name]
     r[:last_name].capitalize! if r[:last_name]
-    errors += 'Missing first name.' unless r[:first_name]
-    errors += 'Missing last name.' unless r[:last_name]
     r[:uuid] = r[:uuid].strip if r[:uuid] if r[:uuid]
     r[:err] = errors
     r[:status] = 'Invalid Data' unless errors == ''
