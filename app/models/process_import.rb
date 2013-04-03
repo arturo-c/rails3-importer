@@ -19,7 +19,7 @@ class ProcessImport
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
-    r[:errors] = ''
+    errors = ''
     if r[:gender]
       r[:gender] = r[:gender].downcase
       r[:gender] = 'm' if r[:gender].casecmp('male') == 0
