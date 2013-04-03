@@ -116,6 +116,7 @@ class MembersController < ApplicationController
     @members.each do |member|
       member.destroy
     end
+    render :live
   end
 
   def export
