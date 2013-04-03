@@ -14,7 +14,7 @@ env = ENV["RAILS_ENV"] || "development"
 preload_app true
 
 # nuke workers after 30 seconds instead of 60 seconds (the default)
-timeout 30
+timeout 90
 listen 8080, :tcp_nopush => true
 
 pid "/tmp/unicorn.org_manager.pid"
