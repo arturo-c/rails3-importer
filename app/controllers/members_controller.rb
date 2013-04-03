@@ -341,20 +341,26 @@ class MembersController < ApplicationController
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
       end
-      today = Date.today
-      child = today.prev_year(13)
-      if r[:birthday] > child
-        errors += 'Parent email is required for child under 13.' unless r[:parent_email]
+      if r[:birthday].is_a?(Date)
+      	today = Date.today
+      	child = today.prev_year(13)
+      	if r[:birthday] > child
+          errors += 'Parent email is required for child under 13.' unless r[:parent_email]
+        end
+        r[:birthday] = r[:birthday].to_s
+      else
+	errors += 'Invalid Date(use format 1985-08-22).'
       end
-      r[:birthday] = r[:birthday].to_s
     end
     r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
     r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]
     r[:first_name] = r[:first_name].strip if r[:first_name]
     r[:last_name] = r[:last_name].strip if r[:last_name]
-    r[:first_name].capitalize!
-    r[:last_name].capitalize!
+    r[:first_name].capitalize! if r[:first_name]
+    r[:last_name].capitalize! if r[:last_name]
+    errors += 'Missing first name.' unless r[:first_name]
+    errors += 'Missing last name.' unless r[:last_name]
     r[:uuid] = r[:uuid].strip if r[:uuid] if r[:uuid]
     r[:err] = errors
     r[:status] = 'Invalid Data' unless errors == ''
