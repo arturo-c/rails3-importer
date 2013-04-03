@@ -5,7 +5,7 @@ class ProcessImport
     chunk.each do |c|
       c = process_rows(c, admin_id)
       group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
-      group = Group.where(:name => c[:group_name]).first unless (c[:group_uuid] && c[:group_uuid].empty?)
+      group = Group.where(:name => c['group_name']).first unless (c['group_uuid'] && c['group_uuid'].empty?)
       c[:group_name] = group.name if group
       c[:err] += c.to_yaml unless group
       c[:status] = 'Invalid Data' unless group
@@ -17,7 +17,6 @@ class ProcessImport
     admin = Admin.find(admin_id)
     r[:admin_uuid] = admin.uuid
     r[:status] = 'Processing'
-    errors = r.to_yaml
     if r[:gender]
       r[:gender] = r[:gender].downcase
       r[:gender] = 'm' if r[:gender].casecmp('male') == 0
