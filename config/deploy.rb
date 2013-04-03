@@ -179,5 +179,5 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-before "deploy", "bundle:install"
-after "deploy", "deploy:restart_resque_web", "deploy:stop_resque_workers", "deploy:start_god"
+before "deploy", "bundle:install", "deploy:stop_resque_workers"
+after "deploy", "deploy:restart_resque_web", "deploy:start_god"
