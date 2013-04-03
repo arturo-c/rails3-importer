@@ -26,7 +26,7 @@ class ProcessImport
         errors += 'Invalid Gender(enter m or f).'
       end
     end
-    if r.birthday
+    if r[:birthday]
       begin
         if r[:birthday].include? "/"
           d = r[:birthday].split("/")
