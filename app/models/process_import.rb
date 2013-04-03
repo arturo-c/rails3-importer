@@ -7,7 +7,7 @@ class ProcessImport
       group = Group.where(:uuid => c[:group_uuid]).first if c[:group_uuid]
       group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
       c[:group_name] = group.name if group
-      c[:err] += 'Group not found' unless group
+      c[:err] += c.to_yaml unless group
       c[:status] = 'Invalid Data' unless group
     end
     Member.collection.insert(chunk)
