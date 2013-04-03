@@ -2,14 +2,16 @@ class ProcessImport
   @queue = :process_import
 
   def self.perform(admin_id, chunk)
-    chunk.each do |c|
-      group = Group.where(:name => c[:group_name]).first unless c[:group_uuid]
+    chunk.collect! do |c|
+      group = Group.where(:name => c[:group_name]).first
       c = process_rows(c, admin_id)
+      c[:err] = group.to_yaml if group
+      c
       #group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
-      c[:group_name] = group.name if group
-      c[:group_uuid] = group.uuid if group
-      c[:err] = c.to_yaml unless group
-      c[:status] = 'Invalid Data' unless group
+      #c[:group_name] = group.name if group
+      #c[:group_uuid] = group.uuid if group
+      #c[:err] = c.to_yaml unless group
+      #c[:status] = 'Invalid Data' unless group
     end
     Member.collection.insert(chunk)
   end
