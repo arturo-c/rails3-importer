@@ -7,6 +7,7 @@ class ProcessImport
       c = process_rows(c, admin_id)
       #group = Group.where(:uuid => c[:group_uuid]).first if (c[:group_uuid] && !c[:group_uuid].empty?)
       c[:group_name] = group.name if group
+      c[:group_uuid] = group.uuid if group
       c[:err] = c.to_yaml unless group
       c[:status] = 'Invalid Data' unless group
     end
@@ -43,26 +44,23 @@ class ProcessImport
         end
       rescue
         errors += 'Invalid Date(use format 1985-08-22).'
-      end
-      if r[:birthday].is_date?
+      else
         today = Date.today
         child = today.prev_year(13)
         if r[:birthday] > child
           errors += 'Parent email is required for child under 13.' unless r[:parent_email]
         end
-      else
-        errors += 'Invalid Date(use format 1985-08-22).'
+        r[:birthday] = r[:birthday].to_s
       end
-      r[:birthday] = r[:birthday].to_s if r[:birthday]
     end
     r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
     r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]
     r[:first_name] = r[:first_name].strip if r[:first_name]
     r[:last_name] = r[:last_name].strip if r[:last_name]
-    r[:first_name].capitalize! if r[:first_name]
-    r[:last_name].capitalize! if r[:last_name]
-    r[:uuid] = r[:uuid].strip if r[:uuid] if r[:uuid]
+    r[:first_name].capitalize!
+    r[:last_name].capitalize!
+    r[:uuid] = r[:uuid].strip if r[:uuid]
     r[:err] = errors
     r[:status] = 'Invalid Data' unless errors == ''
     r[:status] = 'Processing' if errors == ''
