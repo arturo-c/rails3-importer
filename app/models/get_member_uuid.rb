@@ -27,12 +27,10 @@ class GetMemberUuid
               end
               user.create_child
             else
-              user.status = 'Parent not found'
-              user.err = 'Parent not found on allplayers'
+              raise 'Parent not found'
             end
           end
           user.status = 'Ready to be imported.'
-          user.err = nil
         else
           user.status = 'Invalid user data.'
           user.err = errors
