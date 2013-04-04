@@ -9,6 +9,14 @@ class ProcessImport
       c['group_uuid'] = group.uuid if group
       c['group_name'] = group.name if group
       c['status'] = 'Group Not Found' unless group
+      if c['_id']
+        member = Member.find(c['_id'])
+        unless member.nil?
+          r = c.to_hash.with_indifferent_access.symbolize_keys
+          member.update_attributes(member.attributes.merge(r))
+          member.save
+        end
+      end
       c
     }
     Member.collection.insert(chunk)
