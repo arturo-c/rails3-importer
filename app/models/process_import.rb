@@ -20,7 +20,7 @@ class ProcessImport
       end
       c
     }
-    Member.collection.insert(chunk)
+    Member.collection.insert(chunk) if chunk.length > 0
   end
 
   def self.process_import(r, admin_id)
