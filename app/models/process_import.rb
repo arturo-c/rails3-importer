@@ -15,6 +15,7 @@ class ProcessImport
           r = c.to_hash.with_indifferent_access.symbolize_keys
           member.update_attributes(member.attributes.merge(r))
           member.save
+          c = nil
         end
       end
       c
