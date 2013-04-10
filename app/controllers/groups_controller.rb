@@ -140,7 +140,7 @@ class GroupsController < ApplicationController
   end
 
   def get_all_members
-    groups = @@groups
+    groups = @@full_groups
     groups.each do |group|
       group.get_group_members
     end
