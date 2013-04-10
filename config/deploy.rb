@@ -154,6 +154,11 @@ namespace :deploy do
   task :stop_god do
     run "cd #{current_path}; god terminate"
   end
+
+  desc "Restart resque service"
+  task :restart_resque do
+    run "cd #{current_path}; god restart resque"
+  end
   
   desc "Start redis server"
   task :start_redis do
@@ -184,5 +189,5 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-before "deploy", "bundle:install", "deploy:stop_god"
-after "deploy", "deploy:restart_resque_web", "deploy:start_god"
+before "deploy", "bundle:install"
+after "deploy", "deploy:restart_resque_web", "deploy:restart_resque"

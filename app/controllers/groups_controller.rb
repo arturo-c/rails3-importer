@@ -139,6 +139,14 @@ class GroupsController < ApplicationController
     @group
   end
 
+  def get_all_members
+    groups = @@groups
+    groups.each do |group|
+      group.get_group_members
+    end
+    groups
+  end
+
   def get_roles
     @group = Group.find(params[:id])
     @group.get_subgroups_members_roles
