@@ -6,6 +6,7 @@ queue = 'process_import,get_admin_groups,get_group,get_subgroups_members,get_gro
 num_workers.times do |num|
   God.watch do |w|
     w.name          = "resque-#{num}"
+    w.group         = "resque"
     w.interval      = 30.seconds
     w.env           = { 'RAILS_ENV' => rails_env,
                         'QUEUE'     => queue }
