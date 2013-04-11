@@ -13,7 +13,8 @@ class GetSubmission
       raise 'No org webform to get submission' unless group.org_webform_uuid
       fname = HTMLEntities.new.decode(user.first_name)
       lname = HTMLEntities.new.decode(user.last_name)
-      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday})
+      submission = client.get_submission(group.org_webform_uuid, nil, user.uuid, {}) if user.uuid
+      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) unless user.uuid
       user.update_attributes(:submission_id => submission['sid'])
     rescue => e
       user.status = 'Error getting user webform submission'
