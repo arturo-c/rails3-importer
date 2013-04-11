@@ -12,7 +12,7 @@ class GetGroupMembers
       members = client.group_members_list(group.uuid, nil, {:limit => 0})
       members.each do |member|
         u = admin_client.user_get(member['uuid'])
-        m = Member.find_or_create_by({:admin_uuid => group_admin.uuid, :email => u['email'], :uuid => member['uuid'], :gender => u['gender'], :first_name => u['firstname'], :last_name => u['lastname'], :birthday => Date.strptime(u['birthday'], "%m/%d/%Y").to_s, :group_name => group.name, :group_uuid => group.uuid, :status => 'AllPlayers'})
+        m = Member.find_or_create_by({:admin_uuid => group_admin.uuid, :email => u['email'], :uuid => member['uuid'], :gender => u['gender'], :first_name => HTMLEntities.new.decode(u['firstname']), :last_name => HTMLEntities.new.decode(u['lastname']), :birthday => Date.strptime(u['birthday'], "%m/%d/%Y").to_s, :group_name => group.name, :group_uuid => group.uuid, :status => 'AllPlayers'})
       end
     rescue => e
       group.err = e.to_s

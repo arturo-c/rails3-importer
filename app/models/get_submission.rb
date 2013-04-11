@@ -11,7 +11,9 @@ class GetSubmission
       group = Group.where(:name => user.group_name).first unless user.group_uuid
       raise 'Group Not Found' unless group
       raise 'No org webform to get submission' unless group.org_webform_uuid
-      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => user.first_name, 'last_name' => user.last_name, 'birthday' => Date.parse(user.birthday).to_s})
+      fname = HTMLEntities.new.decode(user.first_name)
+      lname = HTMLEntities.new.decode(user.last_name)
+      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday})
       user.update_attributes(:submission_id => submission['sid'])
     rescue => e
       user.status = 'Error getting user webform submission'
