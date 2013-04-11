@@ -117,6 +117,7 @@ namespace :deploy do
       asset_paths = fetch(:public_children, %w(images stylesheets javascripts)).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
       run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true", :env => { "TZ" => "UTC" }
     end
+    bundle.install
   end
 
   desc "Zero-downtime restart of Unicorn"
@@ -189,5 +190,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-before "deploy", "bundle:install"
 after "deploy", "deploy:restart_resque_web", "deploy:restart_resque"
