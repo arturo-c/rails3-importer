@@ -36,6 +36,8 @@
     <%= f.label 'Include Sub Groups', :class => 'control-label', :for => 'filter_subgroups' %>
     <div class="controls">
       <%= f.check_box :subgroups, :checked => ((params[:filter].present? && params[:filter][:subgroups] == 1) ? true : false) %>
+      <%= hidden_field_tag :direction, params[:direction] %>
+      <%= hidden_field_tag :sort, params[:sort] %>
     </div>
   </div>
   <div class="control-group">

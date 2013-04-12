@@ -1,4 +1,5 @@
 module MembersHelper
+  helper_method :sort_column, :sort_direction
   def export_member_data
     require 'csv'
     CSV.generate do |csv|
@@ -17,4 +18,20 @@ module MembersHelper
       end
     end
   end
+
+  def sortable(column, title = nil)
+    title ||= column.titleize
+    css_class = (column == sort_column) ? "current #{sort_direction}" : nil
+    direction = (column == sort_column && sort_direction == "asc") ? "desc" : "asc"
+    link_to title, params.merge(:sort => column, :direction => direction, :page => nil), {:class => css_class}, :remote => true
+  end
+
+  private
+  def sort_column
+    Member.column_names.include?(params[:sort]) ? params[:sort] : "email"
+  end
+
+  def sort_direction
+    %w[asc desc].include?(params[:direction]) ?  params[:direction] : "asc"
+  end 
 end
