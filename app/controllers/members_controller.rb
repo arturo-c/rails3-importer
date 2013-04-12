@@ -4,7 +4,7 @@ class MembersController < ApplicationController
   # GET /members
   # GET /members.json
   def index
-    query = Member.all.where(:admin_uuid => session[:user_uuid]).order(sort_column + ' ' + sort_direction)
+    query = Member.all.where(:admin_uuid => session[:user_uuid]).order_by(sort_column + ' ' + sort_direction)
 
     # Reset filters.
     if params[:commit] == 'Reset Filters'
