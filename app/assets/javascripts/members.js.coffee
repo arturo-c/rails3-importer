@@ -11,6 +11,6 @@ $(document).ready ->
           dataType: "script"
 
       , 3000)
-  $("#members th a, #paginator a").live "click", ->
+  $("#members th a").live "click", ->
     $.getScript @href
     false
