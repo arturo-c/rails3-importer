@@ -1,5 +1,4 @@
 module MembersHelper
-  helper_method :sort_column, :sort_direction
   def export_member_data
     require 'csv'
     CSV.generate do |csv|
@@ -26,7 +25,6 @@ module MembersHelper
     link_to title, params.merge(:sort => column, :direction => direction, :page => nil), {:class => css_class}, :remote => true
   end
 
-  private
   def sort_column
     Member.column_names.include?(params[:sort]) ? params[:sort] : "email"
   end
