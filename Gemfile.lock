@@ -95,6 +95,7 @@ GEM
     hashie (1.2.0)
     highline (1.6.16)
     hike (1.2.1)
+    htmlentities (4.3.1)
     hub (1.10.4)
     i18n (0.6.1)
     journey (1.0.4)
@@ -262,6 +263,7 @@ DEPENDENCIES
   factory_girl_rails (>= 4.2.0)
   figaro (>= 0.5.3)
   god
+  htmlentities
   hub (>= 1.10.2)
   jquery-rails
   kaminari
