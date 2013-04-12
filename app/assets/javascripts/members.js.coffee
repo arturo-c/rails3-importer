@@ -11,6 +11,6 @@ $(document).ready ->
           dataType: "script"
 
       , 3000)
-  $("#members th a").live "click", ->
+  $("#memberstable th a").live "click", ->
     $.getScript @href
     false
