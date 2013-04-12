@@ -377,7 +377,7 @@ class MembersController < ApplicationController
   end
 
   def sort_column
-    Member.column_names.include?(params[:sort]) ? params[:sort] : "email"
+    Member.fields.keys.include?(params[:sort]) ? params[:sort] : "email"
   end
 
   def sort_direction
