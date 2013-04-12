@@ -1,5 +1,5 @@
 <h1>Group Members</h1>
-<%= render 'filter' %>
+<div id="filter"><%= render 'filter' %></div>
 
 <%= link_to 'Download CSV', params.merge(:format => 'csv', :action => :index), {:class => 'btn btn-small btn-info'} %>
 <%= link_to 'Clear Errors', {:action => :clear_errors}, {:class => 'btn btn-small', :remote => true} %>
