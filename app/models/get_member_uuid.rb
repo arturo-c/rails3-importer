@@ -28,7 +28,11 @@ class GetMemberUuid
               end
               user.create_child
             else
-              raise 'Parent not found'
+              if Member.where(:email => user.parent_email).first
+                user.create_child
+              else
+                raise 'Parent not found'
+              end
             end
           end
           user.status = 'Ready to be imported.'
@@ -42,6 +46,11 @@ class GetMemberUuid
           user.err = nil
           user.add_to_group if user.group_name
         else
+          if user.first_name == 'Parent' || !user.group_name
+            user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
+            user.err = nil
+            user.status = 'User on AllPlayers'
+          end
           user.err = "Account email doesn't match first and last name given"
           user.status = 'Email already taken'
         end
