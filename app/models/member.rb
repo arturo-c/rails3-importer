@@ -26,6 +26,7 @@ class Member
   field :phone, type: String
   field :submission_id, type: Integer
   field :status, type: String
+  field :join_date, type: String
   field :err, type: String
 
   

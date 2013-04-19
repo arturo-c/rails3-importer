@@ -351,6 +351,11 @@ class MembersController < ApplicationController
 	errors += 'Invalid Date(use format 1985-08-22).'
       end
     end
+    begin
+      r[:join_date] = Date.parse(r[:join_date]) if r[:join_date]
+    rescue
+      errors += 'Invalid join date(use formate 1985-08-22).'
+    end
     r[:roles] = r[:roles].split(",").collect(&:strip) if r[:roles]
     r[:email] = r[:email].gsub(/\s+/, "").strip if r[:email]
     r[:parent_email] = r[:parent_email].gsub(/\s+/, "").strip if r[:parent_email]

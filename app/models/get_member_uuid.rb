@@ -49,7 +49,6 @@ class GetMemberUuid
           if user.first_name == 'Parent' || !user.group_name
             user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
             user.err = nil
-            user.status = 'User on AllPlayers'
           else
             user.err = "Account email doesn't match first and last name given"
             user.status = 'Email already taken'
