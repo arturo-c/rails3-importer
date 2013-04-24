@@ -15,7 +15,6 @@ class GetSubmission
       lname = HTMLEntities.new.decode(user.last_name)
       submission = client.get_submission(group.org_webform_uuid, nil, user.uuid) if user.uuid
       submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) unless user.uuid
-      user.update_attributes(:submission_id => submission['sid'])
     rescue => e
       begin
         submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday})
@@ -23,17 +22,16 @@ class GetSubmission
         user.status = 'Error getting user webform submission'
         user.err = e
       end
-    else
-      unless submission.nil?
-        if submission['uuid'] == user.uuid
-          user.status = 'Webform assigned'
-        else
-          user.status = 'Unassigned submission'
-        end
+    end
+    if submission['sid']
+      user.update_attributes(:submission_id => submission['sid'])
+      if submission['uuid'] == user.uuid
+        user.status = 'Webform assigned'
+      else
+        user.status = 'Unassigned submission'
       end
       user.err = ''
     end
-
     user.save
   end
 
