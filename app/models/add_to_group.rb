@@ -13,9 +13,9 @@ class AddToGroup
       raise 'Group not found.' unless group
       raise 'No role specified.' unless (user.roles && !user.roles.empty?)
       group_uuid ||= group.uuid
-      join_date = user.join_date
+      join_date = user.join_date ||= nil
       user.roles.each do |role|
-        client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => user.join_date})
+        client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => join_date})
       end
       user.assign_submission
     rescue => e
