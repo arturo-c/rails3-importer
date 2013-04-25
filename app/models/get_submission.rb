@@ -6,6 +6,7 @@ class GetSubmission
     admin = Admin.where(:uuid => user.admin_uuid).first
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    err = nil
     begin
       group = Group.where(:uuid => user.group_uuid).first if user.group_uuid
       group = Group.where(:name => user.group_name).first unless user.group_uuid
@@ -20,10 +21,10 @@ class GetSubmission
         submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday})
       rescue => e
         user.status = 'Error getting user webform submission'
-        user.err = e
+        err = e
       end
     end
-    if submission['sid']
+    if err.nil?
       user.update_attributes(:submission_id => submission['sid'])
       if submission['uuid'] == user.uuid
         user.status = 'Webform assigned'
@@ -31,6 +32,8 @@ class GetSubmission
         user.status = 'Unassigned submission'
       end
       user.err = ''
+    else
+      user.err = err
     end
     user.save
   end
