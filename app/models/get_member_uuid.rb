@@ -22,9 +22,9 @@ class GetMemberUuid
           if user.parent_email
             parent = client.user_get_email(user.parent_email)
             unless parent == 'No Content'
-              unless Member.where(:uuid => parent.first['uuid']).first
+              unless Member.where(:email => parent.first['email']).first
                 p = parent.first
-                Member.find_or_create_by({:admin_uuid => user.admin_uuid, :email => p['email'], :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
+                Member.create({:admin_uuid => user.admin_uuid, :email => p['email'], :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
               end
               user.create_child
             else
