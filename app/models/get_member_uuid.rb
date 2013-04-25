@@ -28,11 +28,7 @@ class GetMemberUuid
               end
               user.create_child
             else
-              if Member.where(:email => user.parent_email).first
-                user.create_child
-              else
-                raise 'Parent not found'
-              end
+              raise 'Parent not found'
             end
           end
           user.status = 'Ready to be imported.'
