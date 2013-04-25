@@ -7,7 +7,7 @@ class CreateChild
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
     begin
-      parent = Member.where(:email => user.parent_email).first
+      parent = Member.where(:email => user.parent_email, :uuid.exists => true).first
       raise "Parent not on AllPlayers." unless (parent && parent.uuid)
       more_params = {}
       more_params[:email] = user.email if user.email
