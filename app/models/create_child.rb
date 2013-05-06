@@ -32,7 +32,7 @@ class CreateChild
             end
           end
         end
-        u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params) unless exists
+        #u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params) unless exists
       end
     rescue => e
       user.update_attributes(:status => 'Error importing user.')
