@@ -19,7 +19,8 @@ class GetSubmission
       submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if (!user.uuid && user.birthday)
     rescue => e
       begin
-        submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday})
+        submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if user.birthday
+        raise 'No submission found' unless submission
       rescue => e
         user.status = 'Error getting user webform submission'
         err = e
