@@ -68,13 +68,13 @@ class ProcessImport
     r['parent_email'] = r['parent_email'].gsub(/\s+/, "").strip if r['parent_email']
     if r['first_name']
       r['first_name'] = r['first_name'].strip
-      r['first_name'].capitalize!
+      #r['first_name'].capitalize!
     else
       errors += 'Missing first name.'
     end
     if r['last_name']
       r['last_name'] = r['last_name'].strip
-      r['last_name'].capitalize!
+      #r['last_name'].capitalize!
     else
       errors += 'Missing last name.'
     end
