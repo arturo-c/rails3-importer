@@ -63,6 +63,17 @@ class ProcessImport
         r['birthday'] = r['birthday'].to_s
       end
     end
+    if r['join_date']
+      begin
+	if r['join_date'].include? "/"
+	  r['join_date'] = Date.strptime(r['join_date'], "%m/%d/%Y %I:%M:%p")
+        else
+	  r['join_date'] = Date.parse(r['join_date'])
+        end
+      rescue
+        errors += 'Invalid date for join date'
+      end
+    end
     r['roles'] = r['roles'].split(",").collect(&:strip) if r['roles']
     r['email'] = r['email'].gsub(/\s+/, "").strip if r['email']
     r['parent_email'] = r['parent_email'].gsub(/\s+/, "").strip if r['parent_email']
