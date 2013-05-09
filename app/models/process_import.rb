@@ -66,7 +66,7 @@ class ProcessImport
     if r['join_date']
       begin
 	if r['join_date'].include? "/"
-	  r['join_date'] = Date.strptime(r['join_date'], "%m/%d/%Y %I:%M:%p")
+	  r['join_date'] = Date.strptime(r['join_date'], "%m/%d/%Y")
         else
 	  r['join_date'] = Date.parse(r['join_date'])
         end
