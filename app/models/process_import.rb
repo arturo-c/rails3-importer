@@ -73,6 +73,7 @@ class ProcessImport
       rescue
         errors += 'Invalid date for join date'
       end
+      r['join_date'] = r['join_date'].to_s
     end
     r['roles'] = r['roles'].split(",").collect(&:strip) if r['roles']
     r['email'] = r['email'].gsub(/\s+/, "").strip if r['email']
