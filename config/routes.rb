@@ -17,6 +17,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_members/live' => 'members#live'
   match '/new_members/get_roles' => 'members#get_roles'
   match '/new_members/get_submissions' => 'members#get_submissions'
+  match '/new_members/get_unique_submissions' => 'members#get_unique_submissions'
   match '/new_members/add_members_job' => 'members#add_members_job'
   match '/new_members/get_webform_data' => 'members#get_webform_data'
   match '/new_members/add_to_all_groups' => 'members#add_to_group_and_subgroups'
