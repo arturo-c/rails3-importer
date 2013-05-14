@@ -203,7 +203,7 @@ class MembersController < ApplicationController
   end
 
   def get_unique_submissions
-    @full_members.each do |member|
+    @@full_members.each do |member|
       member.get_unique_submission
     end
     @members = @@full_members

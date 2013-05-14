@@ -72,6 +72,7 @@ class Member
   def get_unique_submission
     Resque.enqueue(GetUniqueSubmission, self.id)
   end
+
   def assign_submission
     Resque.enqueue(AssignSubmission, self.id)
   end
