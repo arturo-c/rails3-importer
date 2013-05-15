@@ -6,7 +6,7 @@ class GetWebformData
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
-      group = Group.where(:name => /.*#{user.group_name}.*/).first
+      group = Group.where(:group_uuid => user.group_uuid).first
       raise 'Submission ID is needed to get webform data' unless user.submission_id
       submission = client.get_submission(group.org_webform_uuid, user.submission_id, nil, {}, "1")
     rescue => e
