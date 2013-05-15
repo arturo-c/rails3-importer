@@ -15,6 +15,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_members/destroy_all' => 'members#destroy_all'
   match '/new_members/clear_errors' => 'members#clear_errors'
   match '/new_members/live' => 'members#live'
+  match '/new_members/get_duplicates' => 'members#get_duplicates'
   match '/new_members/get_roles' => 'members#get_roles'
   match '/new_members/get_submissions' => 'members#get_submissions'
   match '/new_members/get_unique_submissions' => 'members#get_unique_submissions'

@@ -120,6 +120,11 @@ class MembersController < ApplicationController
     render :live
   end
 
+  def find_duplicates
+    @@full_members = @members = Member.find(:all, :group => [:first_name, :last_name, :birthday, :group_uuid], :having => "count(*) > 1" )
+    render :live
+  end
+
   def export
     @member = Member.find(params[:id])
     @member.get_member_uuid
