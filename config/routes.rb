@@ -25,6 +25,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_members/remove_from_group' => 'members#remove_from_group'
   match '/new_members/remove_from_group_and_subgroups' => 'members#remove_from_group_and_subgroups'
   match '/new_members/set_completed' => 'members#set_completed'
+  match '/new_members/delete_members' => 'members#delete_members'
 
   match '/groups/:id/export' => 'groups#export'
   match '/groups/:id/get_members' => 'groups#get_members'

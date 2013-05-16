@@ -120,6 +120,14 @@ class MembersController < ApplicationController
     render :live
   end
 
+  def delete_members
+    @members = @@full_members
+    @members.each do |member|
+      member.delete_member
+    end
+    render :live
+  end
+
   def get_duplicates
     @@full_members = @members = Member.find(:all, :group => [:first_name, :last_name, :birthday, :group_uuid], :having => "count(*) > 1" )
     render :live

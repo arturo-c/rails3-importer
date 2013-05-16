@@ -81,6 +81,10 @@ class Member
     Resque.enqueue(GetWebformData, self.id)
   end
 
+  def delete_member
+    Resque.enqueue(DeleteMember, self.id)
+  end
+
   def self.unique_email
     map = %Q{
       function() {
