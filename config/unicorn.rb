@@ -26,7 +26,6 @@ if env == "production"
   working_directory "/home/ubuntu/org-manager/current"
 
   # feel free to point this anywhere accessible on the filesystem
-  user 'ubuntu', 'ubuntu'
   shared_path = "/home/ubuntu/org-manager/shared"
 
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
