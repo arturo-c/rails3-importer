@@ -85,6 +85,10 @@ class Member
     Resque.enqueue(DeleteMember, self.id)
   end
 
+  def unblock_member
+    Resque.enqueue(UnblockMember, self.id)
+  end
+
   def self.unique_email
     map = %Q{
       function() {
