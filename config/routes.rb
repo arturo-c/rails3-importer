@@ -36,6 +36,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_groups/import' => 'groups#import_csv'
   match '/new_groups/sync' => 'groups#get_groups'
   match '/new_groups/get_members' => 'groups#get_all_members'
+  match '/new_groups/destroy_all' => 'groups#destroy_all'
 
   match '/submissions/:id/getid' => 'submissions#getid'
   match '/submissions/:id/assign' => 'submissions#assign'

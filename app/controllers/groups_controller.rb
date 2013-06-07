@@ -101,6 +101,13 @@ class GroupsController < ApplicationController
     end
   end
 
+  def destroy_all
+    @groups = @@groups
+    @groups.each do |group|
+      group.destroy
+    end
+  end    
+
   def export
     @group = Group.find(params[:id])
     @group.create_group
