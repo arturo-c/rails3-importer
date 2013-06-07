@@ -102,7 +102,7 @@ class GroupsController < ApplicationController
   end
 
   def destroy_all
-    @groups = @@groups
+    @groups = @@full_groups
     @groups.each do |group|
       group.destroy
     end
