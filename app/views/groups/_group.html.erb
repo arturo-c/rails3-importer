@@ -11,6 +11,7 @@
   <td><%= group.uuid %></td>
   <td><%= group.description %></td>
   <td><%= group.location.present? ? group.location['zip'] : '' %></td>
+  <td><%= group.type %></td>
   <td><%= group.category %></td>
   <td><%= group.groups_above? ? group.groups_above.join(",") : '' %></td>
   <td><%= group.status %></td>
