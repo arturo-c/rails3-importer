@@ -23,7 +23,7 @@ class ProcessGroupImport
     Group.collection.insert(chunk) if chunk.length > 0
   end
 
-  def self.process_import(r, admin_id)
+  def self.process_group_import(r, admin_id)
     admin = Admin.find(admin_id)
     r['user_uuid'] = admin.uuid
     r['status'] = 'Processing'
