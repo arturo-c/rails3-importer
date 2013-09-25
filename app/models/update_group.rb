@@ -3,7 +3,7 @@ class UpdateGroup
 
   def self.perform(group_id)
     group = Group.find(group_id)
-    admin = Admin.find_by(:uuid => group.user_uuid)
+    admin = Admin.where(:uuid => group.user_uuid).first
     client = AllPlayers::Client.new(ENV["HOST"])
     client.prepare_access_token(admin.token, admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
     begin
