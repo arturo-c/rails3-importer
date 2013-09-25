@@ -10,10 +10,10 @@ class Group
   field :description, type: String
   field :location, type: Hash
   field :category, type: Array
-  field :type, type: String, default: 'team'
+  field :type, type: String
   field :status, type: String
   field :err, type: String
-  field :groups_above, type: Array, default: []
+  field :groups_above, type: Array
 
   index({ uuid: 1 } , { unique: true })
 
