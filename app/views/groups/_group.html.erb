@@ -12,7 +12,7 @@
   <td><%= group.description %></td>
   <td><%= group.location.present? ? group.location['zip'] : '' %></td>
   <td><%= group.category %></td>
-  <td><%= group.groups_above.join(",") unless group.groups_above.empty? %></td>
+  <td><%= group.groups_above? ? group.groups_above.join(",") %></td>
   <td><%= group.status %></td>
   <td><%= group.err %></td>
   <td><%= link_to 'Export', 'groups/' + group.id + '/export' unless group.uuid %></td>
