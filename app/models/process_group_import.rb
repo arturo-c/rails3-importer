@@ -5,7 +5,7 @@ class ProcessGroupImport
     chunk.collect! { |c|
       c = self.process_group_import(c, admin_id)
       group = Group.where('uuid' => c['uuid']).first if c['uuid']
-      unless group.nil
+      if group
       	r = c.to_hash.with_indifferent_access.symbolize_keys
      	group.update_attributes(group.attributes.merge(r))
       	group.save
