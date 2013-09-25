@@ -28,6 +28,14 @@ class GroupsController < ApplicationController
     end
   end
 
+  def get_groups_data
+    @groups = @@full_groups
+    @groups.each do |group|
+      group.get_group(group.uuid) if group.uuid
+    end
+    
+  end
+
   def import_csv
     admin = Admin.where('uuid' => session[:user_uuid]).first
     puts admin.to_yaml
