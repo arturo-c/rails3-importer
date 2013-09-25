@@ -166,8 +166,8 @@ class GroupsController < ApplicationController
   end
 
   def get_groups
-    @admin = Admin.find(session[:user_id])
-    @admin.get_admin_groups
+    admin = Admin.where('uuid' => session[:user_uuid]).first
+    admin.get_admin_groups
   end
 
   private
