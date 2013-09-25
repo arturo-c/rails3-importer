@@ -31,7 +31,7 @@ class GroupsController < ApplicationController
   def get_groups_data
     @groups = @@full_groups
     @groups.each do |group|
-      group.get_group(group.uuid) if group.uuid
+      group.get_group if group.uuid
     end
     
   end
