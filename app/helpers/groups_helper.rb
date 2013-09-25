@@ -2,9 +2,9 @@ module GroupsHelper
   def export_group_data
     require 'csv'
     CSV.generate do |csv|
-      csv << ['uuid', 'title', 'description', 'zip', 'category', 'groups_above']
-      @groups.each do |group|
-        csv << [group.uuid, group.title, group.description, group.zip, group.category, group.groups_above]
+      csv << ['uuid', 'name', 'description', 'zip', 'type', 'category', 'groups_above']
+      @groups.each do |g|
+        csv << [g.uuid, g.name, g.description, g.location['zip'], g.type, g.category[0], g.groups_above ? g.groups_above.join(', ') : '']
       end
     end
   end

@@ -28,6 +28,15 @@ class GroupsController < ApplicationController
     end
   end
 
+  def import_csv
+    admin = Admin.where('uuid' => session[:user_uuid]).first
+    SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 100, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
+      admin.process_group_import(chunk)
+    end
+    redirect_to groups_url
+  end
+
+
   # GET /groups/1
   # GET /groups/1.json
   def show
