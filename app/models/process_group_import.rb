@@ -25,7 +25,7 @@ class ProcessGroupImport
 
   def self.process_import(r, admin_id)
     admin = Admin.find(admin_id)
-    r['admin_uuid'] = admin.uuid
+    r['user_uuid'] = admin.uuid
     r['status'] = 'Processing'
     errors = ''
     
