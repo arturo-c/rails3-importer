@@ -173,7 +173,7 @@ class GroupsController < ApplicationController
   def update_groups
     groups = @@full_groups
     groups.each do |group|
-      group.update_groups
+      group.update_group
     end
     groups
   end
