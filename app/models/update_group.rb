@@ -11,7 +11,7 @@ class UpdateGroup
       params[:title] = group.name if group.name
       params[:type] = group.type if group.type
       params[:category] = {0 => group.category} if group.category
-      client.update_group(group.uuid, params)
+      client.group_update(group.uuid, params)
     rescue => e
       group.err = e.to_s
       group.status = 'Error updating group'
