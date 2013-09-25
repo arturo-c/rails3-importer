@@ -190,4 +190,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-after "deploy", "deploy:restart_resque_web", "deploy:restart_resque"
+after "deploy", "deploy:restart_resque_web", "deploy:stop_god", "deploy:start_god"
