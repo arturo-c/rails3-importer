@@ -36,4 +36,8 @@ class Group
   def get_group
     Resque.enqueue(GetGroup, self.id)
   end
+
+  def update_group
+    Resque.enqueue(UpdateGroup, self.id)
+  end
 end

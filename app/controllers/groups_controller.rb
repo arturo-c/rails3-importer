@@ -170,6 +170,14 @@ class GroupsController < ApplicationController
     admin.get_admin_groups
   end
 
+  def update_groups
+    groups = @@full_groups
+    groups.each do |group|
+      group.update_groups
+    end
+    groups
+  end
+
   private
   def process_filter(query)
     filter = params[:filter]

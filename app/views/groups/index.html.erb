@@ -8,6 +8,7 @@
 <%= link_to 'Get Groups From AllPlayers', {:action => :get_groups}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Members From AllPlayers', {:action => :get_all_members}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Groups Additional Data', {:action => :get_groups_data}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Update Groups on AllPlayers', {:action => :update_groups}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <div id="paginator">
   <%= paginate @groups, :remote => true %>
