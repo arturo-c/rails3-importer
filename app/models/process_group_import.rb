@@ -4,7 +4,7 @@ class ProcessGroupImport
   def self.perform(admin_id, chunk)
     chunk.collect! { |c|
       c = self.process_group_import(c, admin_id)
-      group = Group.find(c['uuid']) if c['uuid']
+      group = Group.where('uuid' => c['uuid']).first if c['uuid']
       r = c.to_hash.with_indifferent_access.symbolize_keys
       group.update_attributes(group.attributes.merge(r))
       group.save
