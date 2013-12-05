@@ -76,6 +76,7 @@ class ProcessImport
       r['join_date'] = r['join_date'].to_s
     end
     r['roles'] = r['roles'].split(",").collect(&:strip) if r['roles']
+    r['flags'] = r['flags'].split(",").collect(&:strip) if r['flags']
     r['email'] = r['email'].gsub(/\s+/, "").strip if r['email']
     r['parent_email'] = r['parent_email'].gsub(/\s+/, "").strip if r['parent_email']
     if r['first_name']

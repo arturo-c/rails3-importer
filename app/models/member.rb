@@ -27,6 +27,7 @@ class Member
   field :submission_id, type: Integer
   field :status, type: String
   field :join_date, type: String
+  field :flags, type: Array
   field :err, type: String
 
   

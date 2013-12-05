@@ -3,7 +3,7 @@ module MembersHelper
     require 'csv'
     CSV.generate do |csv|
       csv << ['_id', 'member_id', 'errors', 'parent_email', 'email', 'first_name',
-        'last_name', 'uuid', 'birthday', 'gender', 'group_name', 'roles',
+        'last_name', 'uuid', 'birthday', 'gender', 'group_name', 'roles', 'flags',
         'address_1', 'address_2', 'city', 'state', 'zip', 'country', 'phone',
         'submission_id', 'group_uuid', 'join_date']
       @members.each do |m|
@@ -11,7 +11,7 @@ module MembersHelper
         group = Group.where(:name => m.group_name).first unless m.group_uuid
         csv << [m._id, m.member_id ? m.member_id : '', m.err, m.parent_email, m.email,
           m.first_name, m.last_name, m.uuid, m.birthday,
-          m.gender, m.group_name, m.roles ? m.roles.join(', ') : '',
+          m.gender, m.group_name, m.roles ? m.roles.join(', ') : '', m.flags ? m.flags.join(', '): '',
           m.address_1, m.address_2, m.city, m.state, m.zip, m.country, m.phone,
           m.submission_id, group ? group.uuid : '', m.join_date ? m.join_date : '']
       end

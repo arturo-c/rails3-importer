@@ -3,7 +3,7 @@
   <div class="control-group">
     <%= f.label 'Status', :class => 'control-label', :for => 'filter_status' %>
     <div class="controls">
-      <%= f.select :status, options_for_select(Member.all.distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Members', :onchange => "status_select(this.value)" %>
+      <%= f.select :status, options_for_select(Member.all.where(:admin_uuid => session[:user_uuid]).distinct(:status), params[:filter].present? ? params[:filter][:status] : ''), :include_blank => 'All Members', :onchange => "status_select(this.value)" %>
     </div>
     <%= f.label 'Errors', :class => 'control-label', :for => 'filter_errors' %>
     <div class="controls">
