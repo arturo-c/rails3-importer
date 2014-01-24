@@ -16,7 +16,8 @@ class AddToGroup
       time = Time.now
       time = time.year.to_s + "-" + time.month.to_s + "-" + time.day.to_s
       join_date = user.join_date ||= time
-      flags = user.flags ||= nil
+      flags = nil
+      flags = user.flags if user.flags
       user.roles.each do |role|
         if flags.nil?
           client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => join_date})

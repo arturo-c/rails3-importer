@@ -7,25 +7,29 @@ class CreateChild
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
     begin
-      parent = Member.where(:email => user.parent_email, :uuid.exists => true).first
+      parent = Member.where(:email => user.parent_email.downcase, :uuid.exists => true).first
       raise "Parent not on AllPlayers." unless (parent && parent.uuid)
       more_params = {}
       more_params[:email] = user.email if user.email
       exists = false
       begin
         children = client.user_children_list(parent.uuid)
+        puts children.to_yaml
       rescue => e
         u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params)
       else
-        if children.length == 1
+        if children.length == 1 && children.first.is_a?(Hash)
           c = client.user_get(children.first['uuid'])
+          puts c.to_yaml
           if user.first_name.casecmp(c['firstname']) == 0 && user.last_name.casecmp(c['lastname']) == 0
             exists = true
             u = c
           end
         else
           children.each do |child|
+            next unless child.is_a?(Hash)
             c = client.user_get(child['uuid'])
+            puts c.to_yaml
             if user.first_name.casecmp(c['firstname']) == 0 && user.last_name.casecmp(c['lastname']) == 0
               exists = true
               u = c

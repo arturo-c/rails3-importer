@@ -15,12 +15,12 @@ preload_app true
 
 # nuke workers after 180 seconds instead of 60 seconds (the default)
 timeout 280
-listen 8080, :tcp_nopush => true
+listen 3000, :tcp_nopush => true
 
 pid "/tmp/unicorn.org_manager.pid"
 
 # Production specific settings
-if env == "production"
+if env == "pproduction"
   # Help ensure your application will always spawn in the symlinked
   # "current" directory that Capistrano sets up.
   working_directory "/home/ubuntu/org-manager/current"

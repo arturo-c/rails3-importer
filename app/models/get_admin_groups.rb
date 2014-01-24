@@ -4,10 +4,10 @@ class GetAdminGroups
   def self.perform(user_id)
     user = Admin.find(user_id)
     client = AllPlayers::Client.new(ENV["HOST"])
-    client.prepare_access_token(user.token, user.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     user.update_attributes(:groups => 'Processing')
     begin
-      groups = client.user_groups_list(user.uuid, {:limit => 0})
+      groups = client.user_groups_list(ENV["GROUP_ADMIN_UUID"], {:limit => 0})
       unless groups == 'No Content'
         groups.each do |g|
           group = Group.where(:uuid => g['uuid']).first

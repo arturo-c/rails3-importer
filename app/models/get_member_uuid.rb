@@ -9,14 +9,14 @@ class GetMemberUuid
       if user.parent_email
         parent = client.user_get_email(user.parent_email)
         unless parent == 'No Content'
-          m = Member.where(:email => parent.first['email']).first
+          m = Member.where(:email => parent.first['email'].downcase).first
           if m
             unless m.uuid
               m.update_attributes(:uuid => parent.first['uuid'])
             end
           else
             p = parent.first
-            Member.create({:admin_uuid => user.admin_uuid, :email => p['email'], :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
+            Member.create({:admin_uuid => user.admin_uuid, :email => p['email'].downcase, :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
           end
           user.create_child
         else
@@ -46,7 +46,9 @@ class GetMemberUuid
             user.err = errors
           end
         else
-          if u.first['firstname'].casecmp(user.first_name) == 0 && u.first['lastname'].casecmp(user.last_name) == 0
+          puts u.to_yaml
+          puts user.to_yaml
+          if ((u.first['firstname'].casecmp(user.first_name) == 0 && u.first['lastname'].casecmp(user.last_name) == 0) || (u.first['email'] && u.first['email'].casecmp(user.email)))
             user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
             user.err = nil
             user.add_to_group if user.group_name
