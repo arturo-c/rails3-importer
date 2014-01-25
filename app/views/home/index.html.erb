@@ -3,3 +3,18 @@
 <% unless @admin_info.nil? %>
   Logged in as: <%= @admin_info[:name] %> <%= image_tag @admin_info[:picture], :class => 'img-polaroid', :width => '100px' %>
 <% end %>
+
+<%= form_for(:webform, :html => {:class => "form-horizontal", :method => "post"}, :url => "webforms") do |f| %>
+    <legend>Webform Select</legend>
+    <div class="control-group">
+      <%= f.label 'Webform UUID', :class => 'control-label', :for => 'webform_webform_uuid' %>
+      <div class="controls">
+        <%= f.text_field :webform_uuid, :placeholder => "Enter webform uuid..." %>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls">
+        <%= f.submit 'Go', :class => 'btn' %>
+      </div>
+    </div>
+<% end %>

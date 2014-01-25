@@ -2,6 +2,7 @@ Rails3Importer::Application.routes.draw do
   resources :submissions
   resources :members
   resources :groups
+  resources :webforms
   resources :admins, :only => [:index, :show, :edit, :update ]
 
   root :to => "home#index"

@@ -29,6 +29,7 @@ class Member
   field :join_date, type: String
   field :flags, type: Array
   field :err, type: String
+  field :data, type: Array
 
   
 
@@ -88,6 +89,10 @@ class Member
 
   def unblock_member
     Resque.enqueue(UnblockMember, self.id)
+  end
+
+  def verify_import
+    Resque.enqueue(VerifyImport, self.id)
   end
 
   def self.unique_email

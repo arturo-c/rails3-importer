@@ -14,9 +14,7 @@ class GetSubmission
       raise 'No org webform to get submission' unless group.org_webform_uuid
       fname = HTMLEntities.new.decode(user.first_name)
       lname = HTMLEntities.new.decode(user.last_name)
-      email = HTMLEntities.new.decode(user.parent_email)
       submission = client.get_submission(group.org_webform_uuid, nil, user.uuid) if user.uuid
-      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'email_address' => email}) if (!user.uuid && !user.birthday)
       submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if (!user.uuid && user.birthday)
     rescue => e
       begin

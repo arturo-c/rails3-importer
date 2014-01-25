@@ -24,6 +24,10 @@ class MembersController < ApplicationController
     # Take the pagination out of the csv export.
     @members = @@csv_members if params[:format] == 'csv'
 
+    # Retrieve the webform fields
+    @webform = {}
+    @webform = Webform.where(:uuid => session[:webform_uuid]).first.data if session[:webform_uuid]
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @members }
@@ -67,6 +71,7 @@ class MembersController < ApplicationController
     r = @member.attributes.merge(r) unless @member.nil?
     @member = Member.new(r) if @member.nil?
     @member.update_attributes(r) unless @member.nil?
+
     unless @member.err
       @member.get_member_uuid
     end

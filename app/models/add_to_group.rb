@@ -29,13 +29,35 @@ class AddToGroup
           end
         end
       end
-      user.assign_submission
+      group = Group.where(:uuid => user.group_uuid).first
+      raise 'No org webform to get submission' unless group.org_webform_uuid
+      fname = HTMLEntities.new.decode(user.first_name)
+      lname = HTMLEntities.new.decode(user.last_name)
+      begin
+        submission = nil
+        submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if (!user.uuid && user.birthday)
+        client.assign_submission(group.org_webform_uuid, submission['sid'], user.uuid) unless submission['uuid']
+      rescue => e
+        begin
+          user.member_id ||= nil
+          email = user.email ? user.email : user.parent_email
+          user.country ||= nil
+          user.phone ||= nil
+          user.address_2 ||= nil
+          submission = client.create_submission(group.org_webform_uuid, {1 => fname, 2 => lname, 4 => user.birthday, 5 => email, 6 => user.member_id, 8 => user.address_1, 9 => user.address_2, 10 => user.city, 11 => user.state, 12 => user.zip, 13 => user.country, 15 => user.phone, 16 => user.group_name}, user.uuid)
+          user.submission_id = submission['sid']
+        rescue => e
+          user.err = e.to_s
+          user.status = 'Error creating submission'
+        else
+          user.err = nil
+          user.status = 'User import completed'
+          user.verify_import
+        end
+      end
     rescue => e
       user.err = e.to_s
       user.status = 'Error adding user to group.'
-    else
-      user.status = 'User added to group.'
-      user.err = ''
     end
 
     user.save

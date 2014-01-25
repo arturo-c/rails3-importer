@@ -1,26 +1,31 @@
 <% if (member.err && !member.err.empty?) %>
-  <tr class="error">
+    <tr class="error">
 <% elsif member.status.include? 'Error' %>
-  <tr class="warning">
-<% elsif member.status == 'User added to group.'%>
-  <tr class="success">
-<% else  %>
-  <tr>
+    <tr class="warning">
+<% elsif member.status == 'User added to group.' %>
+    <tr class="success">
+<% else %>
+    <tr>
 <% end %>
-  <td><%= member.member_id %></td>
-  <td><%= member.parent_email %></td>
-  <td><%= member.email %></td>
-  <td><%= member.first_name %></td>
-  <td><%= member.last_name %></td>
-  <td><%= member.birthday %></td>
-  <td><%= member.uuid %></td>
-  <td><%= member.group_name %></td>
-  <td><%= member.group_uuid %></td>
-  <td><%= member.roles %></td>
-  <td><%= member.submission_id %>
-  <td><%= member.status %></td>
-  <td><%= member.err %></td>
-  <td><%= link_to 'Import', 'members/' + member.id + '/export', :remote => true %></td>
-  <td><%= link_to 'Assign', 'members/' + member.id + '/assign', :remote => true %></td>
-  <td><%= link_to 'Delete', member, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+<% if @webform.empty? -%>
+    <td><%= member.email %></td>
+    <td><%= member.first_name %></td>
+    <td><%= member.last_name %></td>
+    <td><%= member.birthday %></td>
+<% else -%>
+    <% @webform.each do |cid, name| -%>
+        <td><%= member.data[name] if member.data %></td>
+    <% end -%>
+<% end -%>
+<td><%= member.parent_email %></td>
+<td><%= member.uuid %></td>
+<td><%= member.group_name %></td>
+<td><%= member.group_uuid %></td>
+<td><%= member.roles %></td>
+<td><%= member.submission_id %>
+<td><%= member.status %></td>
+<td><%= member.err %></td>
+<td><%= link_to 'Import', 'members/' + member.id + '/export', :remote => true %></td>
+<td><%= link_to 'Assign', 'members/' + member.id + '/assign', :remote => true %></td>
+<td><%= link_to 'Delete', member, method: :delete, data: {confirm: 'Are you sure?'} %></td>
 </tr>

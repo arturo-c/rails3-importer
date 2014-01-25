@@ -32,12 +32,17 @@
 <table class="table table-striped table-bordered" id="memberstable">
   <thead>
     <tr>
-      <th>Member ID</th>
-      <th>Parent</th>
-      <th><%= sortable "email" %></th>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>Birthday</th>
+      <% if @webform.empty? -%>
+        <th><%= sortable "email" %></th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Birthday</th>
+      <% else -%>
+          <% @webform.each do |cid, name| -%>
+              <th><%= name %></th>
+          <% end -%>
+      <% end -%>
+      <th>Parent Email</th>
       <th>UUID</th>
       <th>Group Name</th>
       <th>Group UUID</th>

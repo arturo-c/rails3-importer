@@ -3,6 +3,13 @@ class ProcessImport
 
   def self.perform(admin_id, chunk)
     chunk.collect! { |c|
+      #c = self.process_import(c, admin_id)
+      #webform_data = Webform.where(:uuid => webform_uuid).first.data
+      #data = {}
+      #webform_data.each do |cid, name|
+        #data.merge!(cid => c[name.parameterize.underscore.to_sym]) if c.has_key?(name.parameterize.underscore.to_sym)
+        #data.merge!(cid => nil) if !c.has_key?(name.parameterize.underscore.to_sym)
+      #end
       c = self.process_import(c, admin_id)
       group = Group.where(:uuid => c['group_uuid']).first if c['group_uuid']
       group = Group.where(:name => c['group_name']).first unless c['group_uuid']
