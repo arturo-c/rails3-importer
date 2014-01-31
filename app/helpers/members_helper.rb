@@ -9,9 +9,15 @@ module MembersHelper
       @members.each do |m|
         group = Group.where(:uuid => m.group_uuid).first if m.group_uuid
         group = Group.where(:name => m.group_name).first unless m.group_uuid
+        roles = Array.new
+        flags = Array.new
+        m.roles.each do |role, flag|
+          roles << role
+          flags << flag
+        end
         csv << [m._id, m.member_id ? m.member_id : '', m.err, m.parent_email, m.email,
           m.first_name, m.last_name, m.uuid, m.birthday,
-          m.gender, m.group_name, m.roles ? m.roles.join(', ') : '', m.flags ? m.flags.join(', '): '',
+          m.gender, m.group_name, roles.join(', '), flags.join(', '),
           m.address_1, m.address_2, m.city, m.state, m.zip, m.country, m.phone,
           m.submission_id, group ? group.uuid : '', m.join_date ? m.join_date : '']
       end

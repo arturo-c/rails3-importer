@@ -16,13 +16,10 @@ class AddToGroup
       time = Time.now
       time = time.year.to_s + "-" + time.month.to_s + "-" + time.day.to_s
       join_date = user.join_date ||= time
-      flags = nil
-      flags = user.flags if user.flags
-      user.roles.each do |role|
-        if flags.nil?
+      user.roles.each do |role, flag|
+        if flag.nil?
           client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => join_date})
         else
-          flag = flags.shift
           client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => join_date, :flag => flag})
           if flag != 'Active'
             client.user_join_group(group_uuid, user.uuid, role.strip, {:should_pay => 0, :join_date => join_date, :unflag => 'Active'})
@@ -35,17 +32,27 @@ class AddToGroup
       lname = HTMLEntities.new.decode(user.last_name)
       begin
         submission = nil
-        submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if (!user.uuid && user.birthday)
-        client.assign_submission(group.org_webform_uuid, submission['sid'], user.uuid) unless submission['uuid']
+        #submission = client.get_submission(group.org_webform_uuid, nil, nil, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday}) if (!user.uuid && user.birthday)
+        #client.assign_submission(group.org_webform_uuid, submission['sid'], user.uuid) unless submission['uuid']
+        submission = client.get_submission(group.org_webform_uuid, nil, user.uuid)
+        user.submission_id = submission['sid']
+        user.verify_import
       rescue => e
         begin
+          puts 'Creating submission'
           user.member_id ||= nil
-          email = user.email ? user.email : user.parent_email
+          if user.email
+            email = user.email
+          else
+            email = user.parent_email
+          end
+          puts email
           user.country ||= nil
           user.phone ||= nil
           user.address_2 ||= nil
-          submission = client.create_submission(group.org_webform_uuid, {1 => fname, 2 => lname, 4 => user.birthday, 5 => email, 6 => user.member_id, 8 => user.address_1, 9 => user.address_2, 10 => user.city, 11 => user.state, 12 => user.zip, 13 => user.country, 15 => user.phone, 16 => user.group_name}, user.uuid)
+          submission = client.create_submission(group.org_webform_uuid, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday, 'profile__field_email__profile' => email, 'org__sequential_id__org_webform' => user.member_id, 'profile__field_address_street__profil' => user.address_1, 'profile__field_address_additional__profile' => user.address_2, 'profile__field_address_city__profile' => user.city, 'profile__field_address_province__profile' => user.state, 'profile__field_address_postal_code__profile' => user.zip, 'profile__field_address_country__profile' => user.country, 'profile__field_phone__profile' => user.phone, 'organization_name' => user.group_name}, user.uuid)
           user.submission_id = submission['sid']
+          puts submission['id']
         rescue => e
           user.err = e.to_s
           user.status = 'Error creating submission'

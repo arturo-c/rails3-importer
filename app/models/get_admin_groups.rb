@@ -12,7 +12,7 @@ class GetAdminGroups
         groups.each do |g|
           group = Group.where(:uuid => g['uuid']).first
           if group.nil?
-            ap_group = {:uuid => g['uuid'], :name => g['title'], :description => g['description'], :status => 'AllPlayers', :user_uuid => user.uuid, :org_webform_uuid => ENV["WEBFORM_UUID"]}
+            ap_group = {:uuid => g['uuid'], :name => g['title'], :name_lower => g['title'].strip.downcase, :description => g['description'], :status => 'AllPlayers', :user_uuid => user.uuid, :org_webform_uuid => ENV["WEBFORM_UUID"]}
             group = Group.create(ap_group)
           end
         end

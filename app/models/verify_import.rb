@@ -17,19 +17,24 @@ class VerifyImport
     end
     begin
       roles = client.group_roles_list(group.uuid, user.uuid)
-      roles_found = false
-      user.roles.each do |role|
+      user.roles.each do |role, flag|
+        role_found = false
         roles.each do |r|
-          roles_found = true if r['name'] == role
+          if role == r['name']
+            role_found = true
+            unless flag.nil?
+              raise 'Error verifying, ' + flag + ' flag not found for role ' + role unless r['flags'].first == flag
+            end
+          end
         end
-        raise 'Error verifying, ' + role + ' role not found.' unless roles_found
+        raise 'Error verifying, ' + r['name'] + ' role not found.' unless role_found
       end
     rescue => e
       user.status = 'Error verifying role.'
-      err = e
+      user.err = e
     else
       user.status = 'User account verified'
-      err = e
+      user.err = e
     end
 
     user.save

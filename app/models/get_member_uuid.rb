@@ -6,8 +6,27 @@ class GetMemberUuid
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
+      user.err = ''
+      if user.uuid && user.group_uuid
+        user.add_to_group
+        exit!
+      elsif user.uuid
+        user.status = 'User exists in AllPlayers'
+        exit!
+      end
       if user.parent_email
         parent = client.user_get_email(user.parent_email)
+        if user.email
+          u = client.user_get_email(user.email)
+          unless u == 'No Content'
+            if ((u.first['firstname'].strip.downcase == user.first_name_ && u.first['lastname'].strip.downcase == user.last_name_) || (u.first['email'].strip.downcase == user.email_))
+              user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
+              user.err = nil
+              user.add_to_group if user.group_name
+              # Add parent, but currently no way to do that through api.
+            end
+          end
+        end
         unless parent == 'No Content'
           m = Member.where(:email => parent.first['email'].downcase).first
           if m
@@ -18,10 +37,10 @@ class GetMemberUuid
             p = parent.first
             Member.create({:admin_uuid => user.admin_uuid, :email => p['email'].downcase, :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
           end
-          user.create_child
+          user.create_child unless user.uuid
         else
           if Member.where(:email => user.parent_email).first
-            user.create_child
+            user.create_child  unless user.uuid
           else
             raise 'Parent not found'
           end
@@ -46,9 +65,7 @@ class GetMemberUuid
             user.err = errors
           end
         else
-          puts u.to_yaml
-          puts user.to_yaml
-          if ((u.first['firstname'].casecmp(user.first_name) == 0 && u.first['lastname'].casecmp(user.last_name) == 0) || (u.first['email'] && u.first['email'].casecmp(user.email)))
+          if ((u.first['firstname'].strip.downcase == user.first_name_ && u.first['lastname'].strip.downcase == user.last_name_) || (u.first['email'].strip.downcase == user.email_))
             user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
             user.err = nil
             user.add_to_group if user.group_name

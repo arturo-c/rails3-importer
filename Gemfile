@@ -32,7 +32,7 @@ gem "omniauth", ">= 1.1.1"
 gem "omniauth-allplayers"
 gem "figaro", ">= 0.5.3"
 gem 'bootstrap-sass'
-gem 'allplayers', "0.1.4"
+gem 'allplayers', "0.1.5"
 gem 'resque'
 gem 'kaminari'
 gem 'smarter_csv'

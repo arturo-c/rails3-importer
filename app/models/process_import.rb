@@ -7,12 +7,12 @@ class ProcessImport
       #webform_data = Webform.where(:uuid => webform_uuid).first.data
       #data = {}
       #webform_data.each do |cid, name|
-        #data.merge!(cid => c[name.parameterize.underscore.to_sym]) if c.has_key?(name.parameterize.underscore.to_sym)
-        #data.merge!(cid => nil) if !c.has_key?(name.parameterize.underscore.to_sym)
+      #data.merge!(cid => c[name.parameterize.underscore.to_sym]) if c.has_key?(name.parameterize.underscore.to_sym)
+      #data.merge!(cid => nil) if !c.has_key?(name.parameterize.underscore.to_sym)
       #end
       c = self.process_import(c, admin_id)
       group = Group.where(:uuid => c['group_uuid']).first if c['group_uuid']
-      group = Group.where(:name => c['group_name']).first unless c['group_uuid']
+      group = Group.where(:name_lower => c['group_name'].strip.downcase).first if (!c['group_uuid'] && c['group_name'])
       c['group_uuid'] = group.uuid if group
       c['group_name'] = group.name if group
       c['status'] = 'Group Not Found' unless group
@@ -72,29 +72,37 @@ class ProcessImport
     end
     if r['join_date']
       begin
-	if r['join_date'].include? "/"
-	  r['join_date'] = Date.strptime(r['join_date'], "%m/%d/%Y")
+        if r['join_date'].include? "/"
+          r['join_date'] = Date.strptime(r['join_date'], "%m/%d/%Y")
         else
-	  r['join_date'] = Date.parse(r['join_date'])
+          r['join_date'] = Date.parse(r['join_date'])
         end
       rescue
         errors += 'Invalid date for join date'
       end
       r['join_date'] = r['join_date'].to_s
     end
-    r['roles'] = r['roles'].split(",").collect(&:strip) if r['roles']
-    r['flags'] = r['flags'].split(",").collect(&:strip) if r['flags']
-    r['email'] = r['email'].gsub(/\s+/, "").strip if r['email']
-    r['parent_email'] = r['parent_email'].gsub(/\s+/, "").strip if r['parent_email']
+    if r['roles']
+      roles = r['roles'].split(",").collect(&:strip)
+      flags = r['flags'].split(",").collect(&:strip) if r['flags']
+      r['roles'] = Hash.new
+      roles.each do |role|
+        r['roles'][role] = flags.shift
+      end
+    end
+    if r['email']
+      r['email_'] = r['email'].strip.downcase
+    end
+    if r['parent_email']
+      r['parent_email_'] = r['parent_email'].strip.downcase
+    end
     if r['first_name']
-      r['first_name'] = r['first_name'].strip
-      #r['first_name'].capitalize!
+      r['first_name_'] = r['first_name'].strip.downcase
     else
       errors += 'Missing first name.'
     end
     if r['last_name']
-      r['last_name'] = r['last_name'].strip
-      #r['last_name'].capitalize!
+      r['last_name_'] = r['last_name'].strip.downcase
     else
       errors += 'Missing last name.'
     end
