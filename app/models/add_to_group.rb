@@ -6,6 +6,9 @@ class AddToGroup
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
+    user.err = nil
+    user.status = nil
+    err = nil
     begin
       raise 'No group specified.' unless user.group_name
       group = Group.where(:uuid => user.group_uuid).first if user.group_uuid
@@ -32,39 +35,52 @@ class AddToGroup
       lname = HTMLEntities.new.decode(user.last_name)
       begin
         submission = nil
-        #submission = client.get_submission(group.org_webform_uuid, nil, nil, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday}) if (!user.uuid && user.birthday)
-        #client.assign_submission(group.org_webform_uuid, submission['sid'], user.uuid) unless submission['uuid']
         submission = client.get_submission(group.org_webform_uuid, nil, user.uuid)
-        user.submission_id = submission['sid']
-        user.verify_import
       rescue => e
         begin
-          puts 'Creating submission'
-          user.member_id ||= nil
-          if user.email
-            email = user.email
-          else
-            email = user.parent_email
-          end
-          puts email
-          user.country ||= nil
-          user.phone ||= nil
-          user.address_2 ||= nil
-          submission = client.create_submission(group.org_webform_uuid, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday, 'profile__field_email__profile' => email, 'org__sequential_id__org_webform' => user.member_id, 'profile__field_address_street__profil' => user.address_1, 'profile__field_address_additional__profile' => user.address_2, 'profile__field_address_city__profile' => user.city, 'profile__field_address_province__profile' => user.state, 'profile__field_address_postal_code__profile' => user.zip, 'profile__field_address_country__profile' => user.country, 'profile__field_phone__profile' => user.phone, 'organization_name' => user.group_name}, user.uuid)
-          user.submission_id = submission['sid']
-          puts submission['id']
+          raise 'Skipping checking for org submissions for now'
+          submission = client.get_submission(group.org_webform_uuid, nil, nil, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday}) if (user.birthday)
+          client.assign_submission(group.org_webform_uuid, submission['uuid'], user.uuid) unless submission['user_uuid'] == user.uuid
         rescue => e
-          user.err = e.to_s
-          user.status = 'Error creating submission'
-        else
-          user.err = nil
-          user.status = 'User import completed'
-          user.verify_import
+          begin
+            puts 'Creating submission'
+            if user.member_id.nil? || (user.member_id && user.member_id == 0)
+              member_id = 'Auto Generated'
+            else
+              member_id = user.member_id
+            end
+            puts member_id
+            if user.email
+              email = user.email
+            else
+              email = user.parent_email
+            end
+            puts email
+            user.country ||= nil
+            user.phone ||= nil
+            user.address_2 ||= nil
+            submission = client.create_submission(group.org_webform_uuid, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday, 'profile__field_email__profile' => email, 'org__sequential_id__org_webform' => member_id, 'profile__field_address_street__profile' => user.address_1, 'profile__field_address_additional__profile' => user.address_2, 'profile__field_address_city__profile' => user.city, 'profile__field_address_province__profile' => user.state, 'profile__field_address_postal_code__profile' => user.zip, 'profile__field_address_country__profile' => user.country, 'profile__field_phone__profile' => user.phone, 'organization_name' => user.group_name}, user.uuid)
+            user.submission_id = submission['sid']
+            puts submission['id']
+          rescue => e
+            err = e
+            user.status = 'Error creating submission'
+          end
         end
       end
     rescue => e
-      user.err = e.to_s
+      err = e
       user.status = 'Error adding user to group.'
+    end
+
+    if err.nil?
+      user.status = 'User added to group and assigned submission'
+      puts submission.to_yaml
+      user.submission_id = submission['sid']
+      user.submission_uuid = submission['uuid']
+      user.verify_import
+    else
+      user.err = err
     end
 
     user.save

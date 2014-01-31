@@ -25,6 +25,7 @@ class Member
   field :zip, type: String
   field :phone, type: String
   field :submission_id, type: Integer
+  field :submission_uuid, type: String
   field :status, type: String
   field :join_date, type: String
   field :flags, type: Array
