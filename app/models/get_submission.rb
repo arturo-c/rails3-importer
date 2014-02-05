@@ -7,6 +7,7 @@ class GetSubmission
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     err = nil
+    submission = nil
     begin
       group = Group.where(:uuid => user.group_uuid).first if user.group_uuid
       group = Group.where(:name => user.group_name).first unless user.group_uuid
@@ -14,27 +15,27 @@ class GetSubmission
       raise 'No org webform to get submission' unless group.org_webform_uuid
       fname = HTMLEntities.new.decode(user.first_name)
       lname = HTMLEntities.new.decode(user.last_name)
-      submission = client.get_submission(group.org_webform_uuid, nil, user.uuid) if user.uuid
-      submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if (!user.uuid && user.birthday)
+      submission = client.get_submission(group.org_webform_uuid, nil, user.uuid)
     rescue => e
       begin
-        raise e
-        #submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'email_address' => email}) if !user.birthday
-        #submission = client.get_submission(group.org_webform_uuid, nil, nil, {'first_name' => fname, 'last_name' => lname, 'birthday' => user.birthday}) if user.birthday
-        raise 'No submission found' unless submission
+        user.status = 'Submission assigned to user not found, searching for unassigned.'
+        submission = client.get_submission(group.org_webform_uuid, nil, nil, {'profile__field_firstname__profile' => fname, 'profile__field_lastname__profile' => lname, 'profile__field_birth_date__profile' => user.birthday}) if (user.birthday)
       rescue => e
-        user.status = 'Error getting user webform submission'
+        user.status = 'Submission not found.'
         err = e
-      end
-    end
-    if err.nil?
-      user.update_attributes(:submission_id => submission['sid'])
-      if submission['uuid'] == user.uuid
-        user.status = 'Webform assigned'
       else
-        user.status = 'Unassigned submission'
+        user.status = 'Unassigned submission found.'
       end
-      user.err = ''
+    else
+      user.status = 'Assigned submission found.'
+    end
+
+    if err.nil?
+      user.submission_id = submission['sid']
+      user.submission_uuid = submission['uuid']
+      user.old_group = submission['data']['organization_name'].first if submission['data']['organization_name']
+      user.old_member_id = submission['data']['org__sequential_id__org_webform'].first if submission['data']['org__sequential_id__org_webform']
+      user.old_user_uuid = submission['user_uuid']
     else
       user.err = err
     end

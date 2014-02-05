@@ -228,6 +228,14 @@ class MembersController < ApplicationController
     render :live
   end
 
+  def delete_submissions
+    @@full_members.each do |member|
+      member.delete_submission
+    end
+    @members = @@full_members
+    render :live
+  end
+
   def get_unique_submissions
     @@full_members.each do |member|
       member.get_unique_submission

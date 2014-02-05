@@ -15,6 +15,7 @@
 <%= link_to 'Get Submissions', {:action => :get_submissions}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Unique Submissions', {:action => :get_unique_submissions}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Webform Data', {:action => :get_webform_data}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Delete Submissions', {:action => :delete_submissions}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <%= form_for(:set_status, :remote => true, :url => url_for(:action => :set_completed), :html => {:class => "form-horizontal", :method => :get}) do |f| %>
 <%= f.label 'Status', :class => 'control-label', :for => 'status' %>&nbsp;&nbsp;
@@ -45,9 +46,13 @@
       <th>Parent Email</th>
       <th>UUID</th>
       <th>Group Name</th>
+      <th>Old Group</th>
       <th>Group UUID</th>
       <th>Roles</th>
-      <th>Submission ID</td>
+      <th>Flags</th>
+      <th>Submission ID</th>
+      <th>Member ID</th>
+      <th>Old Member ID</th>
       <th>Status</th>
       <th>Errors</th>
       <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>

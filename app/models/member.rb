@@ -9,7 +9,7 @@ class Member
   field :group_name, type: String
   field :group_uuid, type: String
   field :admin_uuid, type: String
-  field :member_id, type: Integer
+  field :member_id, type: Integer, default: ->{0}
   field :email, type: String
   field :parent_email, type: String
   field :first_name, type: String
@@ -17,13 +17,13 @@ class Member
   field :birthday, type: String
   field :gender, type: String
   field :roles, type: Array
-  field :address_1, type: String
-  field :address_2, type: String
-  field :city, type: String
-  field :state, type: String
-  field :country, type: String
-  field :zip, type: String
-  field :phone, type: String
+  field :address_1, type: String, default: ->{''}
+  field :address_2, type: String, default: ->{''}
+  field :city, type: String, default: ->{''}
+  field :state, type: String, default: ->{''}
+  field :country, type: String, default: ->{''}
+  field :zip, type: String, default: ->{''}
+  field :phone, type: String, default: ->{''}
   field :submission_id, type: Integer
   field :submission_uuid, type: String
   field :status, type: String
@@ -31,6 +31,9 @@ class Member
   field :flags, type: Array
   field :err, type: String
   field :data, type: Array
+  field :old_member_id, type: String, default: ->{''}
+  field :old_group, type: String, default: ->{''}
+  field :old_user_uuid, type: String, default: ->{''}
 
   
 
@@ -94,6 +97,14 @@ class Member
 
   def verify_import
     Resque.enqueue(VerifyImport, self.id)
+  end
+
+  def create_submission
+    Resque.enqueue(CreateSubmission, self.id)
+  end
+
+  def delete_submission
+    Resque.enqueue(DeleteSubmission, self.id)
   end
 
   def self.unique_email

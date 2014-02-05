@@ -19,6 +19,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_members/get_duplicates' => 'members#get_duplicates'
   match '/new_members/get_roles' => 'members#get_roles'
   match '/new_members/get_submissions' => 'members#get_submissions'
+  match '/new_members/delete_submissions' => 'members#delete_submissions'
   match '/new_members/get_unique_submissions' => 'members#get_unique_submissions'
   match '/new_members/add_members_job' => 'members#add_members_job'
   match '/new_members/get_webform_data' => 'members#get_webform_data'

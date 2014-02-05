@@ -3,14 +3,13 @@ class GetGroupMemberRoles
 
   def self.perform(member_id)
     member = Member.find(member_id)
-    user = Admin.where(:uuid => member.admin_uuid).first
     client = AllPlayers::Client.new(ENV["HOST"])
-    client.prepare_access_token(user.token, user.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
-      roles = []
+      roles = Hash.new
       r = client.group_roles_list(member.group_uuid, member.uuid)
       r.each do |role|
-        roles << role['name']
+        roles[role['name']] = role['flags']
       end
     rescue => e
       member.err = e.to_s

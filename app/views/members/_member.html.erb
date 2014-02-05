@@ -1,3 +1,9 @@
+<% roles = Array.new -%>
+<% flags = Array.new -%>
+<% member.roles.each do |role, flag| -%>
+<% roles << role -%>
+<% flags << flag -%>
+<% end -%>
 <% if (member.err && !member.err.empty?) %>
     <tr class="error">
 <% elsif member.status.include? 'Error' %>
@@ -20,9 +26,13 @@
 <td><%= member.parent_email %></td>
 <td><%= member.uuid %></td>
 <td><%= member.group_name %></td>
+<td><%= member.old_group %></td>
 <td><%= member.group_uuid %></td>
-<td><%= member.roles %></td>
-<td><%= member.submission_id %>
+<td><%= roles.join(', ') %></td>
+<td><%= flags.join(', ') %></td>
+<td><%= member.submission_id %></td>
+<td><%= member.member_id %></td>
+<td><%= member.old_member_id %></td>
 <td><%= member.status %></td>
 <td><%= member.err %></td>
 <td><%= link_to 'Import', 'members/' + member.id + '/export', :remote => true %></td>
