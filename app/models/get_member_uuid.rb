@@ -5,24 +5,32 @@ class GetMemberUuid
     user = Member.find(user_id)
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    user.err = nil
+    status = 'Done'
     begin
-      user.err = ''
+      if user.parent_email == user.email
+        raise 'Email and Parent Email are identical.'
+      end
       if user.uuid && user.group_uuid
+        status = 'User in AllPlayers'
         user.add_to_group
-        exit!
+        return
       elsif user.uuid
-        user.status = 'User exists in AllPlayers'
-        exit!
+        status = 'User in AllPlayers No Group'
+        return
       end
       if user.parent_email
         parent = client.user_get_email(user.parent_email)
         if user.email
           u = client.user_get_email(user.email)
           unless u == 'No Content'
-            if ((u.first['firstname'].strip.downcase == user.first_name_ && u.first['lastname'].strip.downcase == user.last_name_) || (u.first['email'].strip.downcase == user.email_))
-              user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
-              user.err = nil
-              user.add_to_group if user.group_name
+            fname = HTMLEntities.new.decode(u.first['firstname'])
+            lname = HTMLEntities.new.decode(u.first['lastname'])
+            if ((fname.strip.downcase == user.first_name_ && lname.strip.downcase == user.last_name_))
+              user.uuid = u.first['uuid']
+              status = 'User in AllPlayers'
+              user.add_to_group if user.group_uuid
+              return
               # Add parent, but currently no way to do that through api.
             end
           end
@@ -35,57 +43,46 @@ class GetMemberUuid
             end
           else
             p = parent.first
-            Member.create({:admin_uuid => user.admin_uuid, :email => p['email'].downcase, :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'AllPlayers'})
+            Member.create({:admin_uuid => user.admin_uuid, :email => p['email'].downcase, :uuid => p['uuid'], :gender => p['gender'], :first_name => p['firstname'], :last_name => p['lastname'], :birthday => Date.strptime(p['birthday'], "%m/%d/%Y").to_s, :status => 'Get Member: Parent in AllPlayers'})
           end
-          user.create_child unless user.uuid
+          user.get_child
         else
           if Member.where(:email => user.parent_email).first
-            user.create_child  unless user.uuid
+            user.get_child
           else
-            raise 'Parent not found'
+            raise 'Parent not found.'
           end
         end
       elsif user.email
         u = client.user_get_email(user.email)
         if u == 'No Content'
-          errors = ''
-          errors += 'Missing first name.' unless user.first_name
-          errors += 'Missing last name.' unless user.last_name
-          errors += 'Missing date of birth(use 1985-08-22).' unless user.birthday
-          if user.gender
-            errors += 'Invalid gender(use m or f).' unless ['m', 'f'].include? user.gender
-          else
-            errors += 'Missing gender.'
-          end
-          if errors == ''
-            user.create_member
-            user.status = 'Ready to be imported.'
-          else
-            user.status = 'Invalid user data.'
-            user.err = errors
-          end
+          user.create_member
+          status = 'Ready to be imported'
         else
-          if ((u.first['firstname'].strip.downcase == user.first_name_ && u.first['lastname'].strip.downcase == user.last_name_))
-            user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
-            user.err = nil
-            user.add_to_group if user.group_name
+          fname = HTMLEntities.new.decode(u.first['firstname'])
+          lname = HTMLEntities.new.decode(u.first['lastname'])
+          if ((fname.strip.downcase == user.first_name_ && lname.strip.downcase == user.last_name_))
+            user.uuid = u.first['uuid']
+            status = 'User in AllPlayers'
+            user.add_to_group if user.group_uuid
           else
-            if !user.group_name || true
-              user.update_attributes(:uuid => u.first['uuid'], :birthday => Date.strptime(u.first['birthday'], "%m/%d/%Y"), :gender => u.first['gender'], :first_name => u.first['firstname'], :last_name => u.first['lastname'], :status => 'AllPlayers')
-              user.err = nil
+            if user.group_uuid
+              user.err = 'Account email does not match first and last name given: ' + fname + ' ' + lname
+              status = 'Email already taken'
             else
-              user.err = "Account email doesn't match first and last name given"
-              user.status = 'Email already taken'
+              user.uuid = u.first['uuid']
+              status = 'Email does not match'
             end
           end
         end
       end
     rescue => e
       user.err = e.to_s
-      user.status = 'Error getting user.'
+      status = 'Error getting user'
+    ensure
+      user.status = 'Get Member: ' + status
+      user.save
     end
-
-    user.save
   end
 
 end

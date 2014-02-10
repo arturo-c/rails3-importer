@@ -16,6 +16,8 @@
 <%= link_to 'Get Unique Submissions', {:action => :get_unique_submissions}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Webform Data', {:action => :get_webform_data}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Delete Submissions', {:action => :delete_submissions}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Verify Import Submission', {:action => :verify_import_submission}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Verify Import Roles', {:action => :verify_import_roles}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <%= form_for(:set_status, :remote => true, :url => url_for(:action => :set_completed), :html => {:class => "form-horizontal", :method => :get}) do |f| %>
 <%= f.label 'Status', :class => 'control-label', :for => 'status' %>&nbsp;&nbsp;

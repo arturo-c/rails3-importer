@@ -1,43 +1,34 @@
 class Member
   include Mongoid::Document
 
-  #embeds_many :roles
-  #embeds_one :submission
-  #embeds_one :webform_data
-
   field :uuid, type: String
   field :group_name, type: String
   field :group_uuid, type: String
   field :admin_uuid, type: String
-  field :member_id, type: Integer, default: ->{0}
+  field :member_id, type: Integer, default: -> { 0 }
   field :email, type: String
   field :parent_email, type: String
   field :first_name, type: String
   field :last_name, type: String
   field :birthday, type: String
   field :gender, type: String
-  field :roles, type: Array
-  field :address_1, type: String, default: ->{''}
-  field :address_2, type: String, default: ->{''}
-  field :city, type: String, default: ->{''}
-  field :state, type: String, default: ->{''}
-  field :country, type: String, default: ->{''}
-  field :zip, type: String, default: ->{''}
-  field :phone, type: String, default: ->{''}
+  field :roles, type: Array, default: -> { Hash.new }
+  field :address_1, type: String, default: -> { '' }
+  field :address_2, type: String, default: -> { '' }
+  field :city, type: String, default: -> { '' }
+  field :state, type: String, default: -> { '' }
+  field :country, type: String, default: -> { '' }
+  field :zip, type: String, default: -> { '' }
+  field :phone, type: String, default: -> { '' }
   field :submission_id, type: Integer
   field :submission_uuid, type: String
   field :status, type: String
-  field :join_date, type: String
-  field :flags, type: Array
+  field :join_date, type: String, default: -> { Time.now.year.to_s + "-" + Time.now.month.to_s + "-" + Time.now.day.to_s }
   field :err, type: String
-  field :data, type: Array
-  field :old_member_id, type: String, default: ->{''}
-  field :old_group, type: String, default: ->{''}
-  field :old_user_uuid, type: String, default: ->{''}
-
-  
-
-  validates :email, :uniqueness => {:scope => :group_name}
+  field :old_member_id, type: String, default: -> { '' }
+  field :old_group, type: String, default: -> { '' }
+  field :old_user_uuid, type: String, default: -> { '' }
+  field :create_new_submission, type: Boolean, default: -> { false }
 
   def get_member_uuid
     Resque.enqueue(GetMemberUuid, self.id)
@@ -47,20 +38,24 @@ class Member
     Resque.enqueue(CreateMember, self.id)
   end
 
-  def add_to_group(group_uuid = nil)
-    Resque.enqueue(AddToGroup, self.id, group_uuid)
+  def add_to_group
+    Resque.enqueue(AddToGroup, self.id)
   end
 
   def add_to_group_and_subgroups
     Resque.enqueue(AddToGroupAndSubgroups, self.id)
   end
 
-  def remove_from_group(group_uuid = nil)
-    Resque.enqueue(RemoveFromGroup, self.id, group_uuid)
+  def remove_from_group
+    Resque.enqueue(RemoveFromGroup, self.id)
   end
 
   def remove_from_group_and_subgroups
     Resque.enqueue(RemoveFromGroupAndSubgroups, self.id)
+  end
+
+  def get_child
+    Resque.enqueue(GetChild, self.id)
   end
 
   def create_child
@@ -95,8 +90,12 @@ class Member
     Resque.enqueue(UnblockMember, self.id)
   end
 
-  def verify_import
-    Resque.enqueue(VerifyImport, self.id)
+  def verify_import_submission
+    Resque.enqueue(VerifyImportSubmission, self.id)
+  end
+
+  def verify_import_roles
+    Resque.enqueue(VerifyImportRoles, self.id)
   end
 
   def create_submission
@@ -105,25 +104,5 @@ class Member
 
   def delete_submission
     Resque.enqueue(DeleteSubmission, self.id)
-  end
-
-  def self.unique_email
-    map = %Q{
-      function() {
-        emit(this.email, {count: 1})
-      }
-    }
-
-    reduce = %Q{
-      function(key, values) {
-        var result = {count: 0};
-        values.forEach(function(value) {
-          result.count += value.count;
-        });
-        return result;
-      }
-    }
-
-    self.map_reduce(map, reduce).out(inline: true)
   end
 end

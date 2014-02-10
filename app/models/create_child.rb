@@ -6,48 +6,27 @@ class CreateChild
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
+    status = 'Done'
+    user.err = nil
     begin
-      parent = Member.where(:email => user.parent_email.downcase, :uuid.exists => true).first
-      raise "Parent not on AllPlayers." unless (parent && parent.uuid)
+      parent = Member.where(:email => user.parent_email.downcase).first
       more_params = {}
       more_params[:email] = user.email if user.email
-      exists = false
-      begin
-        children = client.user_children_list(parent.uuid)
-        puts children.to_yaml
-      rescue => e
-        u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params)
-      else
-        if children.length == 1 && children.first.is_a?(Hash)
-          c = client.user_get(children.first['uuid'])
-          puts c.to_yaml
-          if user.first_name.casecmp(c['firstname']) == 0 && user.last_name.casecmp(c['lastname']) == 0
-            exists = true
-            u = c
-          end
-        else
-          children.each do |child|
-            next unless child.is_a?(Hash)
-            c = client.user_get(child['uuid'])
-            puts c.to_yaml
-            if user.first_name.casecmp(c['firstname']) == 0 && user.last_name.casecmp(c['lastname']) == 0
-              exists = true
-              u = c
-            end
-          end
-        end
-        u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params) unless exists
-      end
+      u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params)
     rescue => e
-      user.update_attributes(:status => 'Error importing user.')
-      user.update_attributes(:err => e)
+      status = 'Error creating child'
+      user.err = e
     else
       if u['uuid']
-        user.update_attributes(:uuid => u['uuid'], :status => 'Imported')
-        user.add_to_group
+        user.uuid = u['uuid']
       else
-        user.update_attributes(:status => 'Error importing user')
+        status = 'Error creating child'
+        user.err = 'User not returned'
       end
+    ensure
+      user.status = 'Create Child: ' + status
+      user.save
+      user.add_to_group if (user.group_uuid && user.uuid)
     end
   end
 

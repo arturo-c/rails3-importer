@@ -23,6 +23,8 @@ Rails3Importer::Application.routes.draw do
   match '/new_members/get_unique_submissions' => 'members#get_unique_submissions'
   match '/new_members/add_members_job' => 'members#add_members_job'
   match '/new_members/get_webform_data' => 'members#get_webform_data'
+  match '/new_members/verify_import_roles' => 'members#verify_import_roles'
+  match '/new_members/verify_import_submission' => 'members#verify_import_submission'
   match '/new_members/add_to_all_groups' => 'members#add_to_group_and_subgroups'
   match '/new_members/remove_from_group' => 'members#remove_from_group'
   match '/new_members/remove_from_group_and_subgroups' => 'members#remove_from_group_and_subgroups'

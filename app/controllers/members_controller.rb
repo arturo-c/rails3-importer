@@ -252,6 +252,22 @@ class MembersController < ApplicationController
     render :live
   end
 
+  def verify_import_roles
+    @@full_members.each do |member|
+      member.verify_import_roles
+    end
+    @members = @@full_members
+    render :live
+  end
+
+  def verify_import_submission
+    @@full_members.each do |member|
+      member.verify_import_submission
+    end
+    @members = @@full_members
+    render :live
+  end
+
   def assign_all
     @@full_members.each do |member|
       member.assign_submission
