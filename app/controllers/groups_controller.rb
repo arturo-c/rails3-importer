@@ -170,6 +170,11 @@ class GroupsController < ApplicationController
     admin.get_admin_groups
   end
 
+  def get_org_groups
+    admin = Admin.where('uuid' => session[:user_uuid]).first
+    admin.get_org_groups
+  end
+
   def update_groups
     groups = @@full_groups
     groups.each do |group|
@@ -198,17 +203,5 @@ class GroupsController < ApplicationController
       query = query.where(:name => /.*#{group}.*/)
     end
     return query
-  end
-
-  # Recursive function to get all the groups subgroups.
-  def get_subgroups(group_uuid)
-    @subgroups ||= []
-
-    subgroups = Group.any_of(:groups_above => group_uuid).entries
-    return if subgroups.first.nil?
-    subgroups.each do |subgroup|
-      @subgroups << subgroup.name
-      get_subgroups(subgroup.uuid)
-    end
   end
 end

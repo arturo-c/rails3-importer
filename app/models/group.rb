@@ -13,7 +13,7 @@ class Group
   field :type, type: String
   field :status, type: String
   field :err, type: String
-  field :groups_above, type: Array
+  field :group_above, type: String
 
   index({ uuid: 1 } , { unique: true })
 
