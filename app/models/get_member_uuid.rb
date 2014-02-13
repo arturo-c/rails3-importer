@@ -61,17 +61,18 @@ class GetMemberUuid
         else
           fname = HTMLEntities.new.decode(u.first['firstname'])
           lname = HTMLEntities.new.decode(u.first['lastname'])
-          if ((fname.strip.downcase == user.first_name_ && lname.strip.downcase == user.last_name_))
+          birthday = Date.strptime(u.first['birthday'], "%m/%d/%Y")
+          if (fname.strip.downcase == user.first_name_ && lname.strip.downcase == user.last_name_ && birthday.to_s == user.birthday)
             user.uuid = u.first['uuid']
             status = 'User in AllPlayers'
             user.add_to_group if user.group_uuid
           else
             if user.group_uuid
-              user.err = 'Account email does not match first and last name given: ' + fname + ' ' + lname
+              user.err = 'Account email does not match first and last name given: ' + fname + ' ' + lname + ' or birthday.'
               status = 'Email already taken'
             else
               user.uuid = u.first['uuid']
-              status = 'Email does not match'
+              status = 'Does not match but saving uuid for parent.'
             end
           end
         end

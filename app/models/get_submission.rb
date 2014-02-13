@@ -31,6 +31,7 @@ class GetSubmission
       else
         status = 'Submission member id mismatch.'
         user.err = 'Existing member id: ' + mid.to_s
+        #user.create_submission
       end
     rescue => e
       user.err = e
