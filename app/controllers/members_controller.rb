@@ -27,6 +27,7 @@ class MembersController < ApplicationController
     # Retrieve the webform fields
     @webform = {}
     @webform = Webform.where(:uuid => session[:webform_uuid]).first.data if session[:webform_uuid]
+    @admin = current_user
 
     respond_to do |format|
       format.html # index.html.erb
@@ -222,7 +223,7 @@ class MembersController < ApplicationController
 
   def get_submissions
     @@full_members.each do |member|
-      member.get_submission
+      member.get_submission(current_user.webform)
     end
     @members = @@full_members
     render :live
@@ -230,15 +231,20 @@ class MembersController < ApplicationController
 
   def delete_submissions
     @@full_members.each do |member|
-      member.delete_submission
+      member.delete_submission(current_user.webform)
     end
     @members = @@full_members
     render :live
   end
 
   def get_unique_submissions
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     @@full_members.each do |member|
-      member.get_unique_submission
+      #member.get_unique_submission
+      testing = {'test1' => 'blah', 'test2' => 'zing'}
+      submission = client.create_submission(current_user.webform, member.data_fields.symbolize_keys, member.uuid)
+      testing
     end
     @members = @@full_members
     render :live
@@ -246,7 +252,7 @@ class MembersController < ApplicationController
 
   def get_webform_data
     @@full_members.each do |member|
-      member.get_webform_data
+      member.get_webform_data(current_user.webform)
     end
     @members = @@full_members
     render :live
@@ -262,7 +268,7 @@ class MembersController < ApplicationController
 
   def verify_import_submission
     @@full_members.each do |member|
-      member.verify_import_submission
+      member.verify_import_submission(current_user.webform)
     end
     @members = @@full_members
     render :live
@@ -270,7 +276,7 @@ class MembersController < ApplicationController
 
   def assign_all
     @@full_members.each do |member|
-      member.assign_submission
+      member.assign_submission(current_user.webform)
     end
     @members = @@full_members
     render :live
@@ -278,7 +284,7 @@ class MembersController < ApplicationController
 
   def assign
     @member = Member.find(params[:id])
-    @member.assign_submission
+    @member.assign_submission(current_user.webform)
     render :live
   end
 
@@ -354,6 +360,99 @@ class MembersController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ?  params[:direction] : "asc"
+  end
+
+  def process_import(r, admin)
+    r[:admin_uuid] = admin.uuid
+    r[:status] = 'Processing'
+    errors = ''
+    if r[:gender]
+      r[:gender] = r[:gender].downcase
+      r[:gender] = 'm' if r[:gender].casecmp('male') == 0
+      r[:gender] = 'f' if r[:gender].casecmp('female') == 0
+      unless r[:gender] == 'm' || r[:gender] == 'f'
+        errors += 'Invalid Gender(enter m or f).'
+      end
+    end
+    if r[:birthday]
+      begin
+        if r[:birthday].include? "/"
+          d = r[:birthday].split("/")
+          if d[2].length == 2
+            year = d[2]
+            y = '20' + year if year < '15'
+            y = "19" + year if year > '14'
+            d[2] = y
+            r[:birthday] = Date.strptime(d.join('/'), "%m/%d/%Y")
+          else
+            r[:birthday] = Date.strptime(r[:birthday], "%m/%d/%Y")
+          end
+        else
+          r[:birthday] = Date.parse(r[:birthday])
+        end
+      rescue
+        errors += 'Invalid Date(use format 1985-08-22).'
+      else
+        today = Date.today
+        child = today.prev_year(13)
+        if r[:birthday] > child
+          errors += 'Parent email is required for child under 13.' unless r[:parent_email]
+        end
+        r[:birthday] = r[:birthday].to_s
+      end
+    end
+    if r[:join_date]
+      begin
+        if r[:join_date].include? "/"
+          r[:join_date] = Date.strptime(r[:join_date], "%m/%d/%Y")
+        else
+          r[:join_date] = Date.parse(r[:join_date])
+        end
+      rescue
+        errors += 'Invalid date for join date'
+      end
+      r[:join_date] = r[:join_date].to_s
+    end
+    if r[:roles]
+      roles = r[:roles].split(",").collect(&:strip)
+      flags = r[:flags].split(",").collect(&:strip) if r[:flags]
+      r[:roles] = Hash.new
+      roles.each do |role|
+        r[:roles][role] = flags.shift
+      end
+    end
+    if r[:email]
+      r[:email_] = r[:email].strip.downcase
+    end
+    if r[:parent_email]
+      r[:parent_email_] = r[:parent_email].strip.downcase
+    end
+    if r[:first_name]
+      r[:first_name_] = r[:first_name].strip.downcase
+    else
+      errors += 'Missing first name.'
+    end
+    if r[:last_name]
+      r[:last_name_] = r[:last_name].strip.downcase
+    else
+      errors += 'Missing last name.'
+    end
+    r[:uuid] = r[:uuid].strip if r[:uuid]
+    r[:err] = errors
+    r[:status] = 'Invalid Data' unless errors == ''
+
+    r[:data_fields] = Hash.new
+    r.each do |key, value|
+      if key.inspect.include? 'webform_'
+        v = key.inspect.split ':webform_'
+        admin.webform_fields.each do |k, s|
+          if s.parameterize.underscore == v[1]
+            r[:data_fields][k] = value
+          end
+        end
+      end
+    end
+    return r
   end
 
 end

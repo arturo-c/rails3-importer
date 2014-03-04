@@ -7,11 +7,11 @@
 <% else  %>
   <tr>
 <% end %>
-  <td><%= group.name %></td>
+  <td><%= group.title %></td>
   <td><%= group.uuid %></td>
   <td><%= group.description %></td>
-  <td><%= group.location.present? ? group.location['zip'] : '' %></td>
-  <td><%= group.type %></td>
+  <td><%= group.address_zip %></td>
+  <td><%= group.group_type %></td>
   <td><%= group.category %></td>
   <td><%= group.group_above %></td>
   <td><%= group.status %></td>

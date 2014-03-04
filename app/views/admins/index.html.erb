@@ -1,8 +1,12 @@
-<h3>Users</h3>
-<ul class="admins">
-  <% @admins.each do |admin| %>
-    <li>
-      <%= link_to admin.name, admin %> signed up <%= admin.created_at.to_date %>
-    </li>
-  <% end %>
-</ul>
+<% if user_signed_in? -%>
+    <h3>Select Organization</h3>
+    <%= simple_form_for @admin do |f| %>
+        <%= f.input :organization, :label => 'Organization For Imports' %>
+        <% if @group && @group.webforms -%>
+            <%= f.input :webform, :collection => @group.webforms, :label => 'Webform To Import' %>
+        <% end -%>
+        <%= f.button :submit %>
+    <% end %>
+<% else -%>
+    Please <%= link_to 'Login', signin_path %>
+<% end -%>

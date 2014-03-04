@@ -3,9 +3,9 @@ Rails3Importer::Application.routes.draw do
   resources :members
   resources :groups
   resources :webforms
-  resources :admins, :only => [:index, :show, :edit, :update ]
+  resources :admins, :only => [:index, :show, :edit, :update, :create ]
 
-  root :to => "home#index"
+  root :to => "admins#index"
   match '/auth/:provider/callback' => 'sessions#create'
 
   match '/members/:id/export' => 'members#export'
@@ -36,6 +36,7 @@ Rails3Importer::Application.routes.draw do
   match '/groups/:id/get_members' => 'groups#get_members'
   match '/groups/:id/get_roles' => 'groups#get_roles'
   match '/groups/import' => 'groups#import_csv'
+  match '/groups/group_template' => 'groups#group_template'
   match '/new_groups/export_all' => 'groups#export_all'
   match '/new_groups/get_groups_data' => 'groups#get_groups_data'
   match '/new_groups/clear_errors' => 'groups#clear_errors'
@@ -44,6 +45,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_groups/update_groups' => 'groups#update_groups'
   match '/new_groups/get_members' => 'groups#get_all_members'
   match '/new_groups/destroy_all' => 'groups#destroy_all'
+  match '/new_groups/live' => 'groups#live'
 
   match '/submissions/:id/getid' => 'submissions#getid'
   match '/submissions/:id/assign' => 'submissions#assign'

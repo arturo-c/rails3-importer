@@ -12,7 +12,7 @@ class VerifyImportRoles
         roles.each do |r|
           if role == r['name']
             role_found = true
-            unless flag.nil?
+            unless flag.nil? || flag.empty?
               raise 'Error verifying, ' + flag + ' flag not found for role ' + role unless r['flags'].first == flag
             end
           end

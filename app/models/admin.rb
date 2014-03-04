@@ -1,15 +1,26 @@
 class Admin
   include Mongoid::Document
 
-  #has_many :groups
+  has_and_belongs_to_many :groups do
+    def find_by_uuid(uuid)
+      where(uuid: uuid).first
+    end
+    def find_by_name(name)
+      where(name: name).first
+    end
+  end
 
   field :uuid, type: String
   field :name, type: String
+  field :organization, type: String
   field :token, type: String
   field :secret, type: String
   field :status, type: String
   field :err, type: String
-  attr_accessible :uuid, :name
+  field :webform_fields, type: Array
+  field :webform, type: String
+  field :group_template, type: String
+  attr_accessible :uuid, :name, :organization
 
   def self.create_with_omniauth(auth)
     create! do |admin|
@@ -22,8 +33,8 @@ class Admin
     Resque.enqueue(GetAdminGroups, self.id)
   end
 
-  def get_org_groups
-    Resque.enqueue(GetOrgGroups, self.id)
+  def get_org_groups(org_uuid, template = nil)
+    Resque.enqueue(GetOrgGroups, self.id, org_uuid, template)
   end
  
   def process_import(chunk)
@@ -32,6 +43,10 @@ class Admin
 
   def process_group_import(chunk)
     Resque.enqueue(ProcessGroupImport, self.id, chunk)
+  end
+
+  def create_group_template(group_id)
+    Resque.enqueue(CreateGroupTemplate, self.id, group_id)
   end
 
 end

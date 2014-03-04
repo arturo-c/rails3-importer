@@ -1,9 +1,7 @@
 class AdminsController < ApplicationController
-  before_filter :authenticate_user!
-  before_filter :correct_user?, :except => [:index]
 
   def index
-    @admins = Admin.all
+    @admin ||= current_user
   end
 
   def edit
@@ -12,13 +10,48 @@ class AdminsController < ApplicationController
   
   def update
     @admin = Admin.find(params[:id])
-    if @admin.update_attributes(params[:user])
-      redirect_to @admin
-    else
-      render :edit
+    if !params[:admin].nil?
+      org = params[:admin][:organization]
+      @group = @admin.groups.find_by_name(@admin.organization)
+      @group = @admin.groups.find_by_name(org) unless org.nil?
+      @admin.update_attributes(:organization => org) unless org.nil?
+      @admin.get_org_groups(@group.uuid)
+      if params[:admin][:webform] && @admin.organization
+        webform = @group.webforms.find(params[:admin][:webform])
+        client = AllPlayers::Client.new(ENV["HOST"])
+        client.prepare_access_token(@admin.token, @admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+        form = client.get_webform(webform.uuid)
+        fields = Hash.new
+        form['webform']['components'].each do |cid, value|
+          fields[value['form_key']] = value['name']
+        end
+        @admin.webform_fields = fields
+        @admin.webform = webform.uuid
+        @admin.save
+        redirect_to members_url
+        return
+      elsif @group.nil?
+        flash[:warning] = 'Organization not found.'
+        render :index
+        return
+      end
+    else params[:admin].nil?
+      flash[:warning] = 'Fields required.'
+      render :index
+      return
     end
-  end
 
+    if @group.webforms.empty?
+      client = AllPlayers::Client.new(ENV["HOST"])
+      client.prepare_access_token(@admin.token, @admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+      @webforms = client.group_webforms_list(@group.uuid)
+      @webforms.each do |uuid, name|
+        @group.webforms.build(:uuid => uuid, :name => name)
+      end
+      @group.save
+    end
+    render :index
+  end
 
   def show
     @admin = Admin.find(params[:id])

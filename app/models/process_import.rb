@@ -83,11 +83,12 @@ class ProcessImport
       r['join_date'] = r['join_date'].to_s
     end
     if r['roles']
-      roles = r['roles'].split(",").collect(&:strip)
+      roles = r['roles'].split(",").collect(&:strip) unless r['roles'].kind_of? Hash
       flags = r['flags'].split(",").collect(&:strip) if r['flags']
       r['roles'] = Hash.new
       roles.each do |role|
-        r['roles'][role] = flags.shift
+        r['roles'][role] = '' if flags.nil?
+        r['roles'][role] = flags.shift unless flags.nil?
       end
     end
     if r['email']
@@ -110,6 +111,18 @@ class ProcessImport
     r['err'] = errors
     r['status'] = 'Invalid Data' unless errors == ''
 
+    r['data_fields'] = Hash.new
+    r.map do |key, value|
+      if key.include? 'webform_'
+        v = key.split 'webform_'
+        admin.webform_fields.each do |k, s|
+          if s.parameterize.underscore == v[1]
+            r['data_fields'][k] = value
+          end
+        end
+        r.delete(key)
+      end
+    end
     return r
   end
 

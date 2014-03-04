@@ -31,7 +31,7 @@
       <th>Status</th>
       <th>Errors</th>
       <th><%= link_to 'Delete All', {:action => :destroy_all}, {:remote => true} %></th>
-      <th></th>
+      <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>
       <th></th>
       <th></th>
       <th></th>
@@ -40,5 +40,5 @@
   </thead>
   <tbody id="groups">
     <%= render @groups %>
-  </tbody
+  </tbody>
 </table>

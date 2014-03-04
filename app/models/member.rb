@@ -29,6 +29,7 @@ class Member
   field :old_group, type: String, default: -> { '' }
   field :old_user_uuid, type: String, default: -> { '' }
   field :create_new_submission, type: Boolean, default: -> { false }
+  field :webform_fields, type: Array, default: -> { Hash.new }
 
   def get_member_uuid
     Resque.enqueue(GetMemberUuid, self.id)
@@ -66,20 +67,20 @@ class Member
     Resque.enqueue(GetGroupMemberRoles, self.id)
   end
 
-  def get_submission
-    Resque.enqueue(GetSubmission, self.id)
+  def get_submission(webform_uuid)
+    Resque.enqueue(GetSubmission, self.id, webform_uuid)
   end
 
   def get_unique_submission
     Resque.enqueue(GetUniqueSubmission, self.id)
   end
 
-  def assign_submission
-    Resque.enqueue(AssignSubmission, self.id)
+  def assign_submission(webform_uuid)
+    Resque.enqueue(AssignSubmission, self.id, webform_uuid)
   end
 
-  def get_webform_data
-    Resque.enqueue(GetWebformData, self.id)
+  def get_webform_data(webform_uuid)
+    Resque.enqueue(GetWebformData, self.id, webform_uuid)
   end
 
   def delete_member
@@ -90,19 +91,19 @@ class Member
     Resque.enqueue(UnblockMember, self.id)
   end
 
-  def verify_import_submission
-    Resque.enqueue(VerifyImportSubmission, self.id)
+  def verify_import_submission(webform_uuid)
+    Resque.enqueue(VerifyImportSubmission, self.id, webform_uuid)
   end
 
   def verify_import_roles
     Resque.enqueue(VerifyImportRoles, self.id)
   end
 
-  def create_submission
-    Resque.enqueue(CreateSubmission, self.id)
+  def create_submission(webform_uuid)
+    Resque.enqueue(CreateSubmission, self.id, webform_uuid)
   end
 
-  def delete_submission
-    Resque.enqueue(DeleteSubmission, self.id)
+  def delete_submission(webform_uuid)
+    Resque.enqueue(DeleteSubmission, self.id, webform_uuid)
   end
 end

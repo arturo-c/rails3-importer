@@ -7,9 +7,11 @@
     <li>
     <%= link_to 'Groups', groups_path %>
     </li>
-    <li>
-    <%= link_to 'Members', members_path %>
-    </li>
+    <% if current_user.organization && current_user.webform_fields %>
+        <li>
+        <%= link_to 'Members', members_path %>
+        </li>
+    <% end %>
   <% else %>
     <li>
     <%= link_to 'Login', signin_path %>

@@ -13,26 +13,20 @@
 <% else %>
     <tr>
 <% end %>
-<% if @webform.empty? -%>
-    <td><%= member.email %></td>
-    <td><%= member.first_name %></td>
-    <td><%= member.last_name %></td>
-    <td><%= member.birthday %></td>
-<% else -%>
-    <% @webform.each do |cid, name| -%>
-        <td><%= member.data[name] if member.data %></td>
-    <% end -%>
+<% @admin.webform_fields.each do |key, value| -%>
+  <td><%= member.data_fields[key] unless member.data_fields[key].nil? %></td>
 <% end -%>
+<td><%= member.email %></td>
+<td><%= member.first_name %></td>
+<td><%= member.last_name %></td>
+<td><%= member.birthday %></td>
 <td><%= member.parent_email %></td>
 <td><%= member.uuid %></td>
 <td><%= member.group_name %></td>
-<td><%= member.old_group %></td>
 <td><%= member.group_uuid %></td>
 <td><%= roles.join(', ') %></td>
 <td><%= flags.join(', ') %></td>
 <td><%= member.submission_id %></td>
-<td><%= member.member_id %></td>
-<td><%= member.old_member_id %></td>
 <td><%= member.status %></td>
 <td><%= member.err %></td>
 <td><%= link_to 'Import', 'members/' + member.id + '/export', :remote => true %></td>

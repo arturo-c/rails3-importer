@@ -1,48 +1,7 @@
 <%= form_for(@group, :url => 'import',  :html => {:multipart => true}) do |f| %>
   <div class="field">
     <%= file_field_tag :csv %>
+    <%= f.text_field :group_template %>
     <%= f.submit 'Import' %>
-  </div>
-<% end %>
-<%= form_for(@group) do |f| %>
-  <% if @group.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@group.errors.count, "error") %> prohibited this new_group from being saved:</h2>
-
-      <ul>
-      <% @group.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :name %><br />
-    <%= f.text_field :name %>
-    <%= f.hidden_field :user_uuid, :value => session[:user_uuid] %>
-  </div>
-  <div class="field">
-    <%= f.label :description %><br />
-    <%= f.text_field :description %>
-  </div>
-  <div class="field">
-    <%= f.label :uuid %><br />
-    <%= f.text_field :uuid %>
-  </div>
-  <div class="field">
-    <%= f.label 'Zip Code' %><br />
-    <%= f.text_field :location %>
-  </div>
-  <div class="field">
-    <%= f.label :category %><br />
-    <%= f.text_field :category %>
-  </div>
-  <div class="field">
-    <%= f.label :groups_above %><br />
-    <%= f.text_field :groups_above %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
   </div>
 <% end %>

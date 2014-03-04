@@ -4,30 +4,32 @@ class GetAdminGroups
   def self.perform(user_id)
     user = Admin.find(user_id)
     client = AllPlayers::Client.new(ENV["HOST"])
-    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
-    user.update_attributes(:groups => 'Processing')
+    client.prepare_access_token(user.token, user.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
     begin
-      groups = client.user_groups_list(ENV["GROUP_ADMIN_UUID"], {:limit => 0})
+      groups = client.user_groups_list(user.uuid, {:limit => 0})
+      user_groups = user.groups
       unless groups == 'No Content'
         groups.each do |g|
-          group = Group.where(:uuid => g['uuid']).first
+          group = user_groups.find_by_uuid(g['uuid'])
           if group.nil?
-            ap_group = {:uuid => g['uuid'], :name => g['title'], :name_lower => g['title'].strip.downcase, :description => g['description'], :status => 'AllPlayers', :user_uuid => user.uuid, :org_webform_uuid => ENV["WEBFORM_UUID"]}
-            group = Group.create(ap_group)
+            ap_group = {
+              :uuid => g['uuid'],
+              :title => g['title'],
+              :title_lower => g['title'].strip.downcase,
+              :description => g['description'],
+              :status => 'AllPlayers'
+            }
+            user_groups.create(ap_group)
           end
         end
-        raise unless Group.where(:user_uuid => user.uuid).first
         user.status = 'Updated at ' + Date.today.to_s
         user.err = nil
       else
         user.status = 'No groups found.'
       end
-    rescue => e
-      user.err = e.to_s
-      user.status = 'No groups found.'
+    ensure
+      user.save
     end
-
-    user.save
   end
 
 end

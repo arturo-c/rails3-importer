@@ -35,26 +35,20 @@
 <table class="table table-striped table-bordered" id="memberstable">
   <thead>
     <tr>
-      <% if @webform.empty? -%>
-        <th><%= sortable "email" %></th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Birthday</th>
-      <% else -%>
-          <% @webform.each do |cid, name| -%>
-              <th><%= name %></th>
-          <% end -%>
+      <% @admin.webform_fields.each do |key, name| -%>
+        <th>Webform <%= name %></th>
       <% end -%>
+      <th><%= sortable "email" %></th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Birthday</th>
       <th>Parent Email</th>
       <th>UUID</th>
       <th>Group Name</th>
-      <th>Old Group</th>
       <th>Group UUID</th>
       <th>Roles</th>
       <th>Flags</th>
       <th>Submission ID</th>
-      <th>Member ID</th>
-      <th>Old Member ID</th>
       <th>Status</th>
       <th>Errors</th>
       <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>

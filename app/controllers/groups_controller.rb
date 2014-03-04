@@ -2,7 +2,7 @@ class GroupsController < ApplicationController
   # GET /groups
   # GET /groups.json
   def index
-    query = Group.all.where(:user_uuid => session[:user_uuid])
+    query = Admin.find(session[:user_id]).groups.ne(:status => 'AllPlayers')
     # Introducing class variable for filters so that filters remain consistent
     # throughout ajax calls.
     @@full_groups ||= query
@@ -37,7 +37,11 @@ class GroupsController < ApplicationController
   end
 
   def import_csv
-    admin = Admin.where('uuid' => session[:user_uuid]).first
+    admin = Admin.find(session[:user_id])
+    group = admin.groups.find_or_create_by(:uuid => params[:group][:group_template])
+    admin.group_template = group.uuid
+    admin.save
+    admin.create_group_template(group.id)
     SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 100, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
       admin.process_group_import(chunk)
     end
@@ -109,7 +113,8 @@ class GroupsController < ApplicationController
   def destroy
     @group = Group.find(params[:id])
     @group.update_attributes(:deleted => true)
-    client = AllPlayers.client
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     client.group_delete(@group[:uuid])
 
     respond_to do |format|
@@ -119,22 +124,26 @@ class GroupsController < ApplicationController
   end
 
   def destroy_all
-    @groups = @@full_groups
-    @groups.each do |group|
-      group.destroy
-    end
+    admin = current_user
+    admin.groups.destroy_all
+    @groups = @@full_groups = nil
   end    
 
   def export
-    @group = Group.find(params[:id])
-    @group.create_group
-    @group
+    group = Group.find(params[:id])
+    group.create_group(session[:user_id])
+    redirect_to groups_url
+  end
+
+  def live
+    @@members ||= @members
+    @members = @@members
   end
 
   def export_all
     @groups = @@groups
     @groups.each do |group|
-      group.create_group
+      group.create_group(session[:user_id])
     end
     @groups
   end
@@ -184,6 +193,44 @@ class GroupsController < ApplicationController
   end
 
   private
+  def create_import(group, client)
+    more_params = {
+      :group_type => group.group_type,
+      :web_address => group.title.parameterize.underscore,
+      :groups_above => [group.group_above]
+    }
+    count = 0
+    begin
+      address = {
+        :zip => group.address_zip,
+        :street => group.address_street,
+        :city => group.address_city,
+        :state => group.address_state
+      }
+      ap_group = client.group_create(
+        group.title,
+        group.description,
+        address,
+        {0 => group.category},
+        more_params
+      )
+    rescue AllPlayers::Error => e
+      if e.respond_to?(:code)
+        if e.code == '406' && e.error.include?('already taken')
+          count = count + 1
+          more_params[:web_address] = group.title.parameterize.underscore + '_' + count.to_s
+          retry
+        end
+      end
+    else
+      group.status = 'Imported'
+      group.uuid = ap_group['uuid'] if ap_group
+    ensure
+      group.save
+    end
+    group
+  end
+
   def process_filter(query)
     filter = params[:filter]
     query = query.where(:user_uuid => session[:user_uuid])

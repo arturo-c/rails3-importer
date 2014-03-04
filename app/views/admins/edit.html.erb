@@ -1,6 +1,6 @@
-<%= form_for(@admin) do |f| %>
-  <%= f.label :email %>
-  <%= f.text_field :email %>
-  <br />
-  <%= f.submit "Sign in" %>
+<%= simple_form_for @admin do |f| %>
+    <%= f.input :webform, :label => 'Organization uuid' %>
+    <%= f.input :uuid, :label => 'UUID' %>
+    <%= f.input :name, :label => 'Name' %>
+    <%= f.button :submit %>
 <% end %>
