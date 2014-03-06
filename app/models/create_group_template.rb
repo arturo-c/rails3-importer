@@ -6,6 +6,7 @@ class CreateGroupTemplate
     group = Group.find(group_id)
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
     user.err = nil
     begin
       # Get group template additional data.
@@ -28,9 +29,9 @@ class CreateGroupTemplate
         if subgroup.nil?
           ap_group = {
             :uuid => uuid,
-            :title => g[:title],
+            :title => g[:title].sub(/^School Name /, ''),
             :group_above => g[:group_above],
-            :title_lower => g[:title].strip.downcase,
+            :title_lower => g[:title].sub(/^School Name /, '').strip.downcase,
             :has_children => g[:has_children],
             :status => 'AllPlayers',
             :user_uuid => user.uuid

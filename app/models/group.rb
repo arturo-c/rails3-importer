@@ -105,10 +105,11 @@ class Group
           retry
         end
       end
-    else
-      self.status = 'Imported'
-      self.uuid = ap_group['uuid'] if ap_group
     ensure
+      if ap_group
+        self.status = 'Imported'
+        self.uuid = ap_group['uuid']
+      end
       self.save
     end
   end

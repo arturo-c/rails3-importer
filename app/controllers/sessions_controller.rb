@@ -12,11 +12,11 @@ class SessionsController < ApplicationController
     admin.token = auth['extra']['access_token'].token
     admin.secret = auth['extra']['access_token'].secret
     admin.save
-    admin.get_admin_groups
     flash[:warning] = 'Syncing groups from AllPlayers.'
     session[:user_id] = admin.id
     session[:user_info] = auth['info']
     session[:user_uuid] = auth['uid']
+    admin.get_admin_groups
     redirect_to root_url, :notice => 'Signed in!'
 
   end
