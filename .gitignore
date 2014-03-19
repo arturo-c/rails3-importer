@@ -78,3 +78,4 @@ pickle-email-*.html
 
 # Ignore shared folders for deployment
 /shared
+dump.rdb

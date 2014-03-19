@@ -2,24 +2,28 @@ class GroupsController < ApplicationController
   # GET /groups
   # GET /groups.json
   def index
-    query = Admin.find(session[:user_id]).groups.ne(:status => 'AllPlayers')
-    # Introducing class variable for filters so that filters remain consistent
-    # throughout ajax calls.
-    @@full_groups ||= query
+    admin = Admin.find(session[:user_id])
+    query = admin.groups.all
 
     # Reset filters.
     if params[:commit] == 'Reset Filters'
       params.delete('filter')
-      @@full_groups = query
     elsif params.has_key?(:filter)
       query = process_filter(query)
-      @@full_groups = query
+      @@csv_groups = query
     end
-    @@groups = @groups = query.page(params[:page])
+
+    # Introducing class variable for filters so that filters remain consistent
+    # throughout ajax calls.
+    @@full_groups = query
+    @@csv_groups ||= @@full_groups
+    @distinct_status = admin.groups.all.distinct(:status)
+
+    @@groups = @groups = query.page(params[:page]).per(params[:per_page])
 
     # Take the pagination out of the csv export.
-    @groups = @@full_groups if params[:format] == 'csv'
-    
+    @groups = @@csv_groups if params[:format] == 'csv'
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @groups }
@@ -36,18 +40,43 @@ class GroupsController < ApplicationController
     
   end
 
+  def get_groups_uuid
+    @groups = @@full_groups
+    @groups.each do |group|
+      group.get_group_uuid(session[:user_id ])
+    end
+  end
+
   def import_csv
     admin = Admin.find(session[:user_id])
-    group = admin.groups.find_or_create_by(:uuid => params[:group][:group_template])
-    admin.group_template = group.uuid
-    admin.save
-    admin.create_group_template(group.id)
+    #group = admin.groups.find_or_create_by(:uuid => params[:group][:group_template])
+    #admin.group_template = group.id
+    #admin.save
+    #admin.create_group_template(group.id)
     SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 100, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
       admin.process_group_import(chunk)
     end
     redirect_to groups_url
   end
 
+  def verify_group_import
+    admin = Admin.find(session[:user_id])
+    group = admin.groups.find_or_create_by(:uuid => params[:group][:group_template])
+    #admin.create_group_template(group.id)
+    SmarterCSV.process(params[:csv].tempfile, {:chunk_size => 200, :strip_chars_from_headers => '"', :col_sep => ','}) do |chunk|
+      admin.verify_group_import(chunk)
+    end
+    redirect_to groups_url
+  end
+
+  def create_groups_below
+    admin = Admin.find(session[:user_id])
+    @groups = @@csv_groups
+    @groups.each do |group|
+      group.create_groups_below(session[:user_id], admin.group_template, group.id)
+    end
+    @groups
+  end
 
   # GET /groups/1
   # GET /groups/1.json
@@ -124,8 +153,10 @@ class GroupsController < ApplicationController
   end
 
   def destroy_all
-    admin = current_user
-    admin.groups.destroy_all
+    @groups = @@csv_groups
+    @groups.each do |group|
+      group.delete_group
+    end
     @groups = @@full_groups = nil
   end    
 
@@ -141,7 +172,7 @@ class GroupsController < ApplicationController
   end
 
   def export_all
-    @groups = @@groups
+    @groups = @@csv_groups
     @groups.each do |group|
       group.create_group(session[:user_id])
     end
@@ -192,6 +223,13 @@ class GroupsController < ApplicationController
     groups
   end
 
+  def clone_groups
+    groups = @@full_groups
+    groups.each do |group|
+      group.clone_group
+    end
+  end
+
   private
   def create_import(group, client)
     more_params = {
@@ -233,11 +271,11 @@ class GroupsController < ApplicationController
 
   def process_filter(query)
     filter = params[:filter]
-    query = query.where(:user_uuid => session[:user_uuid])
     query = query.where(:status => filter[:status]) if filter[:status].present?
+    #query = query.where(:name => filter[:name]) if filter[:name].present?
     # Filter by the group selected and all subgroups if checkbox enabled.
     if (filter[:subgroups].present? && filter[:subgroups] == "1" && filter[:name].present?)
-      group = Group.where(:name => params[:filter][:name]).first
+      group = query.where(:name => params[:filter][:name]).first
       # Reset the subgroups variable.
       @subgroups = []
       # Recursive function to get all subgroups.
@@ -247,7 +285,7 @@ class GroupsController < ApplicationController
       query = query.in(name: @subgroups)
     elsif filter[:name].present?
       group = filter[:name]
-      query = query.where(:name => /.*#{group}.*/)
+      query = query.where(:title => /.*#{group}.*/)
     end
     return query
   end

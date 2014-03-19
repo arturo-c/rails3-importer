@@ -12,9 +12,9 @@ class ProcessImport
       #end
       c = self.process_import(c, admin_id)
       group = Group.where(:uuid => c['group_uuid']).first if c['group_uuid']
-      group = Group.where(:name_lower => c['group_name'].strip.downcase).first if (!c['group_uuid'] && c['group_name'])
+      group = Group.where(:title_lower => c['title'].strip.downcase).first if (!c['group_uuid'] && c['title'])
       c['group_uuid'] = group.uuid if group
-      c['group_name'] = group.name if group
+      c['title'] = group.title if group
       c['status'] = 'Group Not Found' unless group
       if c['_id']
         member = Member.find(c['_id'])

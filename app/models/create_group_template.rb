@@ -27,37 +27,56 @@ class CreateGroupTemplate
       subgroups.each do |uuid, g|
         subgroup = user.groups.find_by_uuid(uuid)
         if subgroup.nil?
+          subgroup = user.groups.find_or_create_by(:uuid => uuid)
+          group_above = user.groups.find_or_create_by(:uuid => g[:group_above])
           ap_group = {
             :uuid => uuid,
             :title => g[:title].sub(/^School Name /, ''),
-            :group_above => g[:group_above],
+            :group_above => group_above.id,
             :title_lower => g[:title].sub(/^School Name /, '').strip.downcase,
             :has_children => g[:has_children],
             :status => 'AllPlayers',
             :user_uuid => user.uuid
           }
+
+          # If we wanted additional fields from allplayers.
+          f = client.group_get(uuid)
           ap_group.merge!({
-            :description => group.description,
-            :address_street => group.address_street,
-            :address_city => group.address_city,
-            :address_state => group.address_state,
-            :address_zip => group.address_zip,
-            :group_type => group.group_type,
-            :category => group.category
-          })
+                            :description => f['group_category'].first,
+                            :address_street => group.address_street,
+                            :address_city => group.address_city,
+                            :address_state => group.address_state,
+                            :address_zip => group.address_zip,
+                            :group_type => f['group_type'],
+                            :category => f['group_category'].first
+                          })
+
+          subgroup.update_attributes(ap_group)
+        else
+          #group_above = user.groups.find_or_create_by(:uuid => g[:group_above])
+          ap_group = {
+            #:uuid => uuid,
+            #:title => g[:title].sub(/^School Name /, ''),
+            #:group_above => group_above.id,
+            #:title_lower => g[:title].sub(/^School Name /, '').strip.downcase,
+            #:has_children => g[:has_children],
+            :status => 'Template',
+            #:user_uuid => user.uuid
+          }
+
           # If we wanted additional fields from allplayers.
           #f = client.group_get(uuid)
           #ap_group.merge!({
-          #  :description => f['description'],
-          #  :address_street => f['location']['street'],
-          #  :address_city => f['location']['city'],
-          #  :address_state => f['location']['state'],
-          #  :address_zip => f['location']['zip'],
-          #  :group_type => f['group_type'],
-          #  :category => f['group_category'].first
-          #})
+          #                  :description => f['group_category'].first,
+          #                  :address_street => group.address_street,
+          #                  :address_city => group.address_city,
+          #                  :address_state => group.address_state,
+          #                  :address_zip => group.address_zip,
+          #                  :group_type => f['group_type'],
+          #                  :category => f['group_category'].first
+          #                })
 
-          user.groups.create(ap_group)
+          subgroup.update_attributes(ap_group)
         end
       end
     rescue => e

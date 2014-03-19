@@ -12,6 +12,7 @@ class Group
   end
 
   field :title, type: String
+  field :title_lower, type: String
   field :uuid, type: String
   field :user_uuid, type: String
   field :description, type: String
@@ -22,6 +23,7 @@ class Group
   field :category, type: Array
   field :group_type, type: String
   field :group_template, type: String
+  field :clone_uuid, type: String
   field :status, type: String
   field :err, type: String
   field :group_above, type: String
@@ -48,6 +50,10 @@ class Group
     Resque.enqueue(GetGroup, self.id)
   end
 
+  def get_group_uuid(admin_id)
+    Resque.enqueue(GetGroupUuid, self.id, admin_id)
+  end
+
   def create_group(admin_id)
     Resque.enqueue(CreateGroup, self.id, admin_id)
   end
@@ -56,8 +62,20 @@ class Group
     Resque.enqueue(UpdateGroup, self.id)
   end
 
-  def create_groups_below(admin_id, group_template_uuid, top_level_id)
-    Resque.enqueue(CreateGroupsBelow, self.id, admin_id, group_template_uuid, top_level_id)
+  def clone_group
+    Resque.enqueue(CloneGroup, self.id)
+  end
+
+  def delete_group
+    Resque.enqueue(DeleteGroup, self.id)
+  end
+
+  def create_groups_below(admin_id, group_template_id, top_level_id)
+    Resque.enqueue(CreateGroupsBelow, self.id, admin_id, group_template_id, top_level_id)
+  end
+
+  def create_one_group(admin_id, group_template_id, top_level_id)
+    Resque.enqueue(CreateOneGroup, self.id, admin_id, group_template_id, top_level_id)
   end
 
   def get_recursive_groups(groups, group_above_uuid = self.uuid)

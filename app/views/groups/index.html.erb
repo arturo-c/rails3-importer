@@ -10,6 +10,8 @@
 <%= link_to 'Get Members From AllPlayers', {:action => :get_all_members}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Get Groups Additional Data', {:action => :get_groups_data}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Update Groups on AllPlayers', {:action => :update_groups}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Create Groups Below From Template', {:action => :create_groups_below}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Get Groups UUID', {:action => :get_groups_uuid}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <div id="paginator">
   <%= paginate @groups, :remote => true %>
@@ -30,7 +32,7 @@
       <th>Groups above</th>
       <th>Status</th>
       <th>Errors</th>
-      <th><%= link_to 'Delete All', {:action => :destroy_all}, {:remote => true} %></th>
+      <th><%= link_to 'Delete All', params.merge(:action => :destroy_all), :remote => true %></th>
       <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>
       <th></th>
       <th></th>
