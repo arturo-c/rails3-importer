@@ -7,7 +7,7 @@ module MembersHelper
       @admin.webform_fields.each do |key, name|
         webform_fields << 'Webform ' + name
       end
-      csv << webform_fields.concat(['First Name', 'Last Name', 'Group Name', 'Roles', 'Flags', 'Join Date', 'Birthday',
+      csv << webform_fields.concat(['First Name', 'Last Name', 'Title', 'Roles', 'Flags', 'Join Date', 'Birthday',
               'Parent Email', 'Email', 'Gender', 'UUID', 'Group UUID', 'Submission ID', 'Errors'])
       @members.each do |m|
         roles = Array.new
@@ -22,7 +22,7 @@ module MembersHelper
           data_fields << data[key] unless data[key].nil?
           data_fields << '' if data[key].nil?
         end
-        csv << data_fields.concat([m.first_name, m.last_name, m.group_name, roles.join(', '), flags.join(', '), m.join_date, m.birthday,
+        csv << data_fields.concat([m.first_name, m.last_name, m.title, roles.join(', '), flags.join(', '), m.join_date, m.birthday,
                 m.parent_email, m.email, m.gender, m.uuid, m.group_uuid, m.submission_id, m.err])
       end
     end

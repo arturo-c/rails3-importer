@@ -5,6 +5,7 @@ class Member
   field :group_name, type: String
   field :group_uuid, type: String
   field :admin_uuid, type: String
+  field :title, type: String
   field :member_id, type: Integer, default: -> { 0 }
   field :email, type: String
   field :parent_email, type: String

@@ -6,7 +6,7 @@ class Admin
       where(uuid: uuid).first
     end
     def find_by_name(name)
-      where(name: name).first
+      where(title: name).first
     end
   end
 
@@ -47,6 +47,10 @@ class Admin
 
   def create_group_template(group_id)
     Resque.enqueue(CreateGroupTemplate, self.id, group_id)
+  end
+
+  def verify_group_import(chunk)
+    Resque.enqueue(VerifyGroupImport, self.id, chunk)
   end
 
 end

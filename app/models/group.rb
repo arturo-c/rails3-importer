@@ -12,6 +12,7 @@ class Group
   end
 
   field :title, type: String
+  field :title_lower, type: String
   field :uuid, type: String
   field :user_uuid, type: String
   field :description, type: String
@@ -22,6 +23,9 @@ class Group
   field :category, type: Array
   field :group_type, type: String
   field :group_template, type: String
+  field :template, type: String
+  field :payee, type: String
+  field :clone_uuid, type: String
   field :status, type: String
   field :err, type: String
   field :group_above, type: String
@@ -48,6 +52,10 @@ class Group
     Resque.enqueue(GetGroup, self.id)
   end
 
+  def get_group_uuid(admin_id)
+    Resque.enqueue(GetGroupUuid, self.id, admin_id)
+  end
+
   def create_group(admin_id)
     Resque.enqueue(CreateGroup, self.id, admin_id)
   end
@@ -56,8 +64,28 @@ class Group
     Resque.enqueue(UpdateGroup, self.id)
   end
 
-  def create_groups_below(admin_id, group_template_uuid, top_level_id)
-    Resque.enqueue(CreateGroupsBelow, self.id, admin_id, group_template_uuid, top_level_id)
+  def clone_group(clone_uuid)
+    Resque.enqueue(CloneGroup, self.id, clone_uuid)
+  end
+
+  def clone_forms(clone_uuid, new, user_uuid)
+    Resque.enqueue(CloneForms, self.id, clone_uuid, new, user_uuid)
+  end
+
+  def delete_group
+    Resque.enqueue(DeleteGroup, self.id)
+  end
+
+  def create_groups_below(admin_id, group_template_id, top_level_id)
+    Resque.enqueue(CreateGroupsBelow, self.id, admin_id, group_template_id, top_level_id)
+  end
+
+  def create_one_group(admin_id, group_template_id, top_level_id)
+    Resque.enqueue(CreateOneGroup, self.id, admin_id, group_template_id, top_level_id)
+  end
+
+  def set_store_payee(payee)
+    Resque.enqueue(SetStorePayee, self.id, payee)
   end
 
   def get_recursive_groups(groups, group_above_uuid = self.uuid)
@@ -73,10 +101,9 @@ class Group
     return @subgroups
   end
 
-  def create_import(admin_id)
-    admin = Admin.find(admin_id)
+  def create_import
     client = AllPlayers::Client.new(ENV["HOST"])
-    client.prepare_access_token(admin.token, admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     more_params = {
       :group_type => self.group_type,
       :web_address => self.title.parameterize.underscore,
@@ -90,7 +117,8 @@ class Group
         :city => self.address_city,
         :state => self.address_state
       }
-      ap_group = client.group_create(
+      ap_group = client.user_create_group(
+        self.user_uuid,
         self.title,
         self.description,
         address,
@@ -104,6 +132,12 @@ class Group
           more_params[:web_address] = self.title.parameterize.underscore + '_' + count.to_s
           retry
         end
+      end
+    rescue RestClient::NotAcceptable => e
+      if e.to_s.include?('already taken')
+        count = count + 1
+        more_params[:web_address] = self.title.parameterize.underscore + '_' + count.to_s
+        retry
       end
     ensure
       if ap_group
