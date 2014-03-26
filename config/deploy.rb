@@ -192,4 +192,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-after "deploy", "deploy:stop_god", "deploy:start_god"
+after "deploy", "deploy:terminate_god", "deploy:start_god"
