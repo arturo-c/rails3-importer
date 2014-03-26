@@ -8,14 +8,14 @@ set :branch,          "origin/master"
 set :migrate_target,  :current
 set :ssh_options,     { :forward_agent => true }
 set :rails_env,       "production"
-set :deploy_to,       "/home/ubuntu/org-manager"
+set :deploy_to,       "/mnt/apci/usat_importer"
 set :normalize_asset_timestamps, false
-set :domain, "ec2-54-225-169-159.compute-1.amazonaws.com"
+set :domain, "import.allplayers.local"
 set :rvm_type, :user
 set :rvm_ruby_string, "allplayers-importer@ruby-1.9.3-p392"
 
-set :user,            "ubuntu"
-set :group,           "ubuntu"
+set :user,            "root"
+set :group,           "root"
 set :use_sudo,        false
 
 role :web, domain
@@ -38,7 +38,7 @@ default_environment["GEM_HOME"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allpl
 default_environment["GEM_PATH"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allplayers-importer:/usr/local/rvm/gems/ruby-1.9.3-p392@global"
 default_environment["RUBY_VERSION"] = "ruby-1.9.3-p392"
 
-default_environment["RAILS_ROOT"]   = "/home/ubuntu/org-manager/current"
+default_environment["RAILS_ROOT"]   = "/mnt/apci/usat_importer/current"
 default_run_options[:shell] = 'bash'
 
 namespace :bundle do
@@ -122,18 +122,18 @@ namespace :deploy do
 
   desc "Zero-downtime restart of Unicorn"
   task :restart, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.org_manager.pid`"
+    run "kill -s QUIT `cat /tmp/unicorn.usat.pid`"
     start
   end
 
   desc "Start unicorn"
   task :start, :except => { :no_release => true } do
-    run "cd #{current_path} ; unicorn -c config/unicorn.rb -p 8080 -D"
+    run "cd #{current_path} ; unicorn -c config/unicorn.rb -D"
   end
 
   desc "Stop unicorn"
   task :stop, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.org_manager.pid`"
+    run "kill -s QUIT `cat /tmp/unicorn.usat.pid`"
   end
 
   desc "Stop resque workers"
@@ -148,17 +148,17 @@ namespace :deploy do
 
   desc "Start god monitor"
   task :start_god do
-    run "cd #{current_path}; god -c config/resque.god"
+    run "cd #{current_path}; god; god load config/resque.god; god start usat"
   end
 
   desc "Stop god monitor"
   task :stop_god do
-    run "cd #{current_path}; god terminate"
+    run "cd #{current_path}; god stop usat"
   end
 
   desc "Restart resque service"
   task :restart_resque do
-    run "cd #{current_path}; god restart resque"
+    run "cd #{current_path}; god restart usat"
   end
   
   desc "Start redis server"

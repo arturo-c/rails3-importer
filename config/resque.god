@@ -2,7 +2,7 @@ rails_env   = ENV['RAILS_ENV']  || "production"
 rails_root  = ENV['RAILS_ROOT']
 num_workers = 10
 #God.pid_file_directory = rails_root
-queue = 'create_group_template,process_group_import,create_group,clone_group,clone_forms,create_groups_below,create_one_group,set_store_payee,delete_group'
+queue = 'create_group_template,process_group_import,create_group,clone_forms,clone_group,create_groups_below,create_one_group,set_store_payee,delete_group'
 num_workers.times do |num|
   God.watch do |w|
     w.name          = "usat-#{num}"

@@ -13,8 +13,8 @@ class CloneGroup
     else
       group.err = nil
       group.status = 'Group settings cloned'
-      group.clone_forms(group.payee, false, nil) if group.payee
-      group.clone_forms(group.template, true, group.user_uuid) unless group.payee
+      group.set_store_payee(group.payee) if group.payee
+      group.set_store_payee(group.uuid) unless group.payee
     ensure
       group.save
     end

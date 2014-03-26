@@ -13,8 +13,7 @@ class CloneForms
     else
       group.err = nil
       group.status = 'Cloned group webforms'
-      group.set_store_payee(group.payee) if group.payee
-      group.set_store_payee(group.uuid) unless group.payee
+      group.clone_group(group.template)
     ensure
       group.save
     end

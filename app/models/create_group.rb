@@ -15,7 +15,8 @@ class CreateGroup
       template = Group.find(admin.group_template)
       if template
         group.update_attributes(:template => template.uuid)
-        group.clone_group(template.uuid)
+        group.clone_forms(group.payee, false, nil) if group.payee
+        group.clone_forms(group.template, true, group.user_uuid) unless group.payee
         group.create_groups_below(admin_id, template.id, group.id)
       end
     ensure
