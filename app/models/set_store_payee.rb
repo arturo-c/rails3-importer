@@ -13,7 +13,9 @@ class SetStorePayee
       group.err = e.to_s
       group.status = 'Error setting payee'
     else
+      group.err = nil
       group.status = 'Success in setting payee.'
+      group.status = 'Master' unless group.payee
     ensure
       group.save
     end

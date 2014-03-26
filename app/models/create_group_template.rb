@@ -20,7 +20,7 @@ class CreateGroupTemplate
         :address_zip => temp['location']['zip'],
         :group_type => temp['group_type'],
         :category => temp['group_category'].first,
-        :status => 'AllPlayers'
+        :status => 'Template'
       })
       groups = client.group_subgroups_tree(group.uuid)
       subgroups = group.get_recursive_groups(groups, group.uuid)
@@ -35,7 +35,7 @@ class CreateGroupTemplate
             :group_above => group_above.id,
             :title_lower => g[:title].sub(/^School Name /, '').strip.downcase,
             :has_children => g[:has_children],
-            :status => 'AllPlayers',
+            :status => 'Template',
             :user_uuid => user.uuid
           }
 

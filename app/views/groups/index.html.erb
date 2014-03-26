@@ -14,6 +14,7 @@
 <%= link_to 'Get Groups UUID', {:action => :get_groups_uuid}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Set Group Payee', {:action => :set_store_payee}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Clone Webforms', {:action => :clone_webforms}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Clone Groups', {:action => :clone_groups}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <div id="paginator">
   <%= paginate @groups, :remote => true %>

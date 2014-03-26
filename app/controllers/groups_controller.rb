@@ -212,8 +212,22 @@ class GroupsController < ApplicationController
   end
 
   def get_groups
-    admin = Admin.where('uuid' => session[:user_uuid]).first
-    admin.get_admin_groups
+    admin = Admin.find(session[:user_id])
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    groups = client.user_groups_list('6219590a-b059-11e3-8c9b-22000a9b80fe', {:limit => 0})
+    groups.each do |g|
+      ap_group = {
+        :uuid => g['uuid'],
+        :title => g['title'],
+        :title_lower => g['title'].strip.downcase,
+        :description => g['description'],
+        :user_uuid => '6219590a-b059-11e3-8c9b-22000a9b80fe',
+        :status => 'AllPlayers'
+      }
+      admin.groups.create(ap_group)
+    end
+    #admin.get_admin_groups
   end
 
   def get_org_groups
@@ -232,46 +246,25 @@ class GroupsController < ApplicationController
   def clone_groups
     @groups = @@full_groups
     @groups.each do |group|
-      group.clone_group
+      group.clone_group(group.template)
     end
     @groups
   end
 
   def set_store_payee
-    client = AllPlayers::Client.new(ENV["STORE_HOST"], 'basic')
-    client.add_headers({:Content_Type => 'application/json'})
-    response = client.login(ENV["STORE_USER"], ENV["STORE_PASSWORD"])
-    client.add_headers({:COOKIE => response['session_name'] + '=' + response['sessid']})
     @groups = @@full_groups
     @groups.each do |group|
-      begin
-        client.set_store_payee(group.uuid, nil)
-      rescue => e
-        group.err = e.to_s
-        group.status = 'Error setting payee'
-      ensure
-        group.status = 'Success in setting payee.'
-        group.save
-      end
+      group.set_store_payee(group.uuid) unless group.payee
+      group.set_store_payee(group.payee) if group.payee
     end
     @groups
   end
 
   def clone_webforms
-    client = AllPlayers::Client.new(ENV["HOST"])
-    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     @groups = @@full_groups
     @groups.each do |group|
-      begin
-        client.group_clone_webforms(group.uuid, group.payee)
-      rescue => e
-        group.err = e.to_s
-        group.status = 'Error cloning group webforms'
-      else
-        group.status = 'Cloned group webforms'
-      ensure
-        group.save
-      end
+      group.clone_forms(group.payee, false, nil) if group.payee
+      group.clone_forms(group.template, true, group.user_uuid) unless group.payee
     end
     @groups
   end

@@ -10,10 +10,10 @@ class CreateOneGroup
       group.err = e
     else
       admin = Admin.find(admin_id)
+      group.status = 'Created group'
+      group.err = nil
       admin.groups.push(group)
       group.clone_group(group.template)
-      group.set_store_payee(group.payee)
-      group.clone_forms(group.payee, false, nil)
       group.create_groups_below(admin_id, group_template_id, top_level_id) unless group_template_id.nil?
     ensure
       group.save

@@ -11,7 +11,10 @@ class CloneForms
       group.err = e.to_s
       group.status = 'Error cloning group webforms'
     else
+      group.err = nil
       group.status = 'Cloned group webforms'
+      group.set_store_payee(group.payee) if group.payee
+      group.set_store_payee(group.uuid) unless group.payee
     ensure
       group.save
     end

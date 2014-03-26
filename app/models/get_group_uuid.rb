@@ -13,9 +13,12 @@ class GetGroupUuid
     rescue => e
       group.err = e.to_s
       group.status = 'Error getting group'
+    else
+      group.err = nil
+      group.status = 'Group uuid retrieved'
+    ensure
+      group.save
     end
-
-    group.save
   end
 
 end
