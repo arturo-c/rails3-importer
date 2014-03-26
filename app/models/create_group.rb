@@ -12,12 +12,22 @@ class CreateGroup
     else
       group.err = nil
       group.status = 'Created group'
-      template = Group.find(admin.group_template)
-      if template
-        group.update_attributes(:template => template.uuid)
+      if group.template
         group.clone_forms(group.payee, false, nil) if group.payee
         group.clone_forms(group.template, true, group.user_uuid) unless group.payee
-        group.create_groups_below(admin_id, template.id, group.id)
+        if group.payee
+          temp = Group.where(:uuid => group.template)
+          payee = Group.where(:uuid => group.payee)
+          group.create_groups_below(admin_id, temp.id, payee.id)
+        end
+      else
+        template = Group.find(admin.group_template)
+        if template
+          group.update_attributes(:template => template.uuid)
+          group.clone_forms(group.payee, false, nil) if group.payee
+          group.clone_forms(group.template, true, group.user_uuid) unless group.payee
+          group.create_groups_below(admin_id, template.id, group.id)
+        end
       end
     ensure
       group.save
