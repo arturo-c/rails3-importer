@@ -4,7 +4,7 @@ require "rvm/capistrano"
 
 set :scm,             :git
 set :repository,      "git@github.com:arturo-c/rails3-importer.git"
-set :branch,          "origin/master"
+set :branch,          "origin/usat_importer"
 set :migrate_target,  :current
 set :ssh_options,     { :forward_agent => true }
 set :rails_env,       "production"
@@ -53,10 +53,6 @@ namespace :deploy do
     update
     restart
   end
-
-  task :start_resque do
-    run "cd #{current_path}; resque-web -L"
-  end
   
   desc "Setup your git-based deployment app"
   task :setup, :except => { :no_release => true } do
@@ -64,6 +60,7 @@ namespace :deploy do
     dirs += shared_children.map { |d| File.join(shared_path, d) }
     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
     run "git clone #{repository} #{current_path}"
+    run "cd #{current_path}; git checkout -f #{branch}"
     run "sudo sed -i 's/shareobjects/#shareobjects/g' /etc/redis/redis.conf"
     run "sudo sed -i 's/shareobjectspoolsize/#shareobjectspoolsize/g' /etc/redis/redis.conf"
     start_redis
@@ -146,6 +143,11 @@ namespace :deploy do
     run "cd #{current_path}; resque-web -K; resque-web -L"
   end
 
+  desc "Terminate god service"
+  task :terminate_god do
+    run "cd #{current_path}; god terminate"
+  end
+
   desc "Start god monitor"
   task :start_god do
     run "cd #{current_path}; god; god load config/resque.god; god start usat"
@@ -190,4 +192,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-after "deploy", "deploy:restart_resque_web", "deploy:stop_god", "deploy:start_god"
+after "deploy", "deploy:stop_god", "deploy:start_god"
