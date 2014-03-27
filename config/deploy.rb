@@ -119,7 +119,7 @@ namespace :deploy do
 
   desc "Zero-downtime restart of Unicorn"
   task :restart, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.usat.pid`"
+    run "kill -s QUIT `cat /tmp/unicorn.usar.pid`"
     start
   end
 
@@ -150,17 +150,17 @@ namespace :deploy do
 
   desc "Start god monitor"
   task :start_god do
-    run "cd #{current_path}; god; god load config/resque.god; god start usat"
+    run "cd #{current_path}; god; god load config/resque.god; god start usar"
   end
 
   desc "Stop god monitor"
   task :stop_god do
-    run "cd #{current_path}; god stop usat"
+    run "cd #{current_path}; god stop usar"
   end
 
   desc "Restart resque service"
   task :restart_resque do
-    run "cd #{current_path}; god restart usat"
+    run "cd #{current_path}; god restart usar"
   end
 
   desc "Start redis server"
@@ -192,4 +192,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-after "deploy", "deploy:terminate_god", "deploy:start_god"
+after "deploy", "deploy:stop_god", "deploy:start_god"
