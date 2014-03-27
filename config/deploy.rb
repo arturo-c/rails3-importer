@@ -4,18 +4,18 @@ require "rvm/capistrano"
 
 set :scm,             :git
 set :repository,      "git@github.com:arturo-c/rails3-importer.git"
-set :branch,          "origin/master"
+set :branch,          "origin/usar"
 set :migrate_target,  :current
 set :ssh_options,     { :forward_agent => true }
 set :rails_env,       "production"
-set :deploy_to,       "/home/ubuntu/org-manager"
+set :deploy_to,       "/mnt/apci/usar_importer"
 set :normalize_asset_timestamps, false
-set :domain, "ec2-54-225-169-159.compute-1.amazonaws.com"
+set :domain, "import.allplayers.local"
 set :rvm_type, :user
 set :rvm_ruby_string, "allplayers-importer@ruby-1.9.3-p392"
 
-set :user,            "ubuntu"
-set :group,           "ubuntu"
+set :user,            "root"
+set :group,           "root"
 set :use_sudo,        false
 
 role :web, domain
@@ -38,7 +38,7 @@ default_environment["GEM_HOME"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allpl
 default_environment["GEM_PATH"]     = "/usr/local/rvm/gems/ruby-1.9.3-p392@allplayers-importer:/usr/local/rvm/gems/ruby-1.9.3-p392@global"
 default_environment["RUBY_VERSION"] = "ruby-1.9.3-p392"
 
-default_environment["RAILS_ROOT"]   = "/home/ubuntu/org-manager/current"
+default_environment["RAILS_ROOT"]   = "/mnt/apci/usar_importer/current"
 default_run_options[:shell] = 'bash'
 
 namespace :bundle do
@@ -54,16 +54,13 @@ namespace :deploy do
     restart
   end
 
-  task :start_resque do
-    run "cd #{current_path}; resque-web -L"
-  end
-  
   desc "Setup your git-based deployment app"
   task :setup, :except => { :no_release => true } do
     dirs = [deploy_to, shared_path]
     dirs += shared_children.map { |d| File.join(shared_path, d) }
     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
     run "git clone #{repository} #{current_path}"
+    run "cd #{current_path}; git checkout -f #{branch}"
     run "sudo sed -i 's/shareobjects/#shareobjects/g' /etc/redis/redis.conf"
     run "sudo sed -i 's/shareobjectspoolsize/#shareobjectspoolsize/g' /etc/redis/redis.conf"
     start_redis
@@ -122,18 +119,18 @@ namespace :deploy do
 
   desc "Zero-downtime restart of Unicorn"
   task :restart, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.org_manager.pid`"
+    run "kill -s QUIT `cat /tmp/unicorn.usat.pid`"
     start
   end
 
   desc "Start unicorn"
   task :start, :except => { :no_release => true } do
-    run "cd #{current_path} ; unicorn -c config/unicorn.rb -p 8080 -D"
+    run "cd #{current_path} ; unicorn -c config/unicorn.rb -D"
   end
 
   desc "Stop unicorn"
   task :stop, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.org_manager.pid`"
+    run "kill -s QUIT `cat /tmp/unicorn.usat.pid`"
   end
 
   desc "Stop resque workers"
@@ -146,21 +143,26 @@ namespace :deploy do
     run "cd #{current_path}; resque-web -K; resque-web -L"
   end
 
+  desc "Terminate god service"
+  task :terminate_god do
+    run "cd #{current_path}; god terminate"
+  end
+
   desc "Start god monitor"
   task :start_god do
-    run "cd #{current_path}; god -c config/resque.god"
+    run "cd #{current_path}; god; god load config/resque.god; god start usat"
   end
 
   desc "Stop god monitor"
   task :stop_god do
-    run "cd #{current_path}; god terminate"
+    run "cd #{current_path}; god stop usat"
   end
 
   desc "Restart resque service"
   task :restart_resque do
-    run "cd #{current_path}; god restart resque"
+    run "cd #{current_path}; god restart usat"
   end
-  
+
   desc "Start redis server"
   task :start_redis do
     run "sudo redis-server /etc/redis/redis.conf"
@@ -190,4 +192,4 @@ def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
 end
 
-after "deploy", "deploy:restart_resque_web", "deploy:stop_god", "deploy:start_god"
+after "deploy", "deploy:terminate_god", "deploy:start_god"

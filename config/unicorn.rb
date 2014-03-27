@@ -1,6 +1,6 @@
 # config/unicorn.rb
 # Set environment to development unless something else is specified
-env = ENV["RAILS_ENV"] || "development"
+env = ENV["RAILS_ENV"] || "production"
 
 # See http://unicorn.bogomips.org/Unicorn/Configurator.html for complete
 # documentation.
@@ -15,18 +15,18 @@ preload_app true
 
 # nuke workers after 180 seconds instead of 60 seconds (the default)
 timeout 280
-listen 3300, :tcp_nopush => true
+listen 3000, :tcp_nopush => true
 
 pid "/tmp/unicorn.usar.pid"
 
 # Production specific settings
-if env == "pproduction"
+if env == "production"
   # Help ensure your application will always spawn in the symlinked
   # "current" directory that Capistrano sets up.
-  working_directory "/home/ubuntu/org-manager/current"
+  working_directory "/mnt/apci/usar_importer/current"
 
   # feel free to point this anywhere accessible on the filesystem
-  shared_path = "/home/ubuntu/org-manager/shared"
+  shared_path = "/mnt/apci/usar_importer/shared"
 
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
   stdout_path "#{shared_path}/log/unicorn.stdout.log"
