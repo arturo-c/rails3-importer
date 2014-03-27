@@ -19,7 +19,7 @@ class AdminsController < ApplicationController
       if params[:admin][:webform] && @admin.organization
         webform = @group.webforms.find(params[:admin][:webform])
         client = AllPlayers::Client.new(ENV["HOST"])
-        client.prepare_access_token(@admin.token, @admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+        client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
         form = client.get_webform(webform.uuid)
         fields = Hash.new
         form['webform']['components'].each do |cid, value|
