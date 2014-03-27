@@ -1,5 +1,5 @@
-rails_env   = ENV['RAILS_ENV']  || "development"
-rails_root  = ENV['USAR_IMPORTER_ROOT'] || "/mnt/apci/projects/usar-importer"
+rails_env   = ENV['RAILS_ENV']  || "production"
+rails_root  = ENV['USAR_IMPORTER_ROOT'] || "/mnt/apci/usar_importer"
 num_workers = 10
 #God.pid_file_directory = rails_root
 queue = 'get_admin_groups,get_org_groups,process_import,get_member_uuid,create_member,get_child,create_child,add_to_group,get_submission,create_submission,verify_import_submission,verify_import_roles'
