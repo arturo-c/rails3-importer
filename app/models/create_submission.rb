@@ -8,30 +8,25 @@ class CreateSubmission
     user.err = nil
     status = 'Done'
     begin
-      #group = Group.where(:uuid => user.group_uuid).first
-      #if user.member_id == 0
-        #member_id = 'Auto Generated'
-      #else
-        #member_id = user.member_id
-      #end
       submission = client.create_submission(webform_uuid, user.data_fields.symbolize_keys, user.uuid)
-      #if submission['data']['org__sequential_id__org_webform']
-        #member_id = submission['data']['org__sequential_id__org_webform']
-        #if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
-          #mid = member_id.to_i
-        #elsif member_id.kind_of?(Array)
-          #mid = member_id.first.to_i
-        #end
-        #user.member_id = mid
-      #end
+      if submission['data']['org__sequential_id__org_webform']
+        member_id = submission['data']['org__sequential_id__org_webform']
+        if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
+          mid = member_id.to_i
+        elsif member_id.kind_of?(Array)
+          mid = member_id.first.to_i
+        end
+        user.member_id = mid
+      end
       user.submission_id = submission['sid']
       user.submission_uuid = submission['uuid']
     rescue => e
-      user.err = e
-      status = 'Error creating submission'
+      user.err = 'Error creating submission' + e
+      status = 'Error'
     ensure
       user.status = 'Create Submission: ' + status
       user.save
+      #user.verify_import_submission(webform_uuid)
     end
   end
 end

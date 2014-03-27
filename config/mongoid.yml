@@ -5,7 +5,7 @@ development:
     default:
       # Defines the name of the default database that Mongoid can connect to.
       # (required).
-      database: ap_importer_development
+      database: usar_importer
       # Provides the hosts the default session can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
@@ -85,7 +85,7 @@ production:
     default:
       # Defines the name of the default database that Mongoid can connect to.
       # (required).
-      database: ap_importer_production
+      database: usar_importer_production
       # Provides the hosts the default session can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:

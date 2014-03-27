@@ -1,15 +1,12 @@
-rails_env   = ENV['RAILS_ENV']  || "production"
-rails_root  = ENV['RAILS_ROOT']
+rails_env   = ENV['RAILS_ENV']  || "development"
+rails_root  = ENV['USAR_IMPORTER_ROOT'] || "/mnt/apci/projects/usar-importer"
 num_workers = 10
-God.pid_file_directory = rails_root
-queue = 'process_import,process_group_import,get_admin_groups,get_group,get_subgroups_members,update_group,get_group_members,get_subgroups_members_roles,get_group_members_roles,get_group_member_roles,get_submission,get_unique_submission,get_member_uuid,get_webform_data,create_group,create_member,create_child,add_to_group,add_to_group_and_subgroups,remove_from_group_and_subgroups,remove_from_group,assign_submission,delete_member,unblock_member,verify_import'
-#queue = 'process_import,get_member_uuid,get_group_member_roles,create_member,create_child,add_to_group,remove_from_group,get_submission,delete_submission,verify_import_roles,verify_import_submission,get_admin_groups,create_submission'
-#queue = 'process_group_import,verify_group_import,get_org_groups,get_admin_groups,create_group_template,create_one_group,create_groups_below,create_group,get_group_members,get_group_member_roles,get_group_members_roles,get_subgroups_members,get_subgroups_members_roles,process_import,get_member_uuid,create_member,get_child,create_child,add_to_group,get_submission,create_submission,delete_submission,verify_import_roles,verify_import_submission,delete_group'
-queue = 'delete_group,get_group_uuid'
+#God.pid_file_directory = rails_root
+queue = 'get_admin_groups,get_org_groups,process_import,get_member_uuid,create_member,get_child,create_child,add_to_group,get_submission,create_submission,verify_import_submission,verify_import_roles'
 num_workers.times do |num|
   God.watch do |w|
-    w.name          = "importer-#{num}"
-    w.group         = "importer"
+    w.name          = "usar-#{num}"
+    w.group         = "usar"
     w.interval      = 30.seconds
     w.env           = { 'RAILS_ENV' => rails_env,
                         'QUEUE'     => queue }

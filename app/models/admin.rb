@@ -33,8 +33,8 @@ class Admin
     Resque.enqueue(GetAdminGroups, self.id)
   end
 
-  def get_org_groups(org_uuid, template = nil)
-    Resque.enqueue(GetOrgGroups, self.id, org_uuid, template)
+  def get_org_groups(org_uuid)
+    Resque.enqueue(GetOrgGroups, self.id, org_uuid)
   end
  
   def process_import(chunk)

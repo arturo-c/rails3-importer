@@ -14,21 +14,23 @@ class GetSubmission
         return
       end
       submission = client.get_submission(webform_uuid, nil, user.uuid)
-      #member_id = submission['data']['org__sequential_id__org_webform']
-      #if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
-        #mid = member_id.to_i
-      #elsif member_id.kind_of?(Array)
-        #mid = member_id.first.to_i
-      #end
-      #if user.member_id == 0 || mid == user.member_id
+      member_id = submission['data']['org__sequential_id__org_webform']
+      if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
+        mid = member_id.to_i
+      elsif member_id.kind_of?(Array)
+        mid = member_id.first.to_i
+      end
+      memberid = user.data_fields['org__sequential_id__org_webform']
+      if !memberid || (memberid && mid == memberid)
         status = 'Submission completed.'
         user.submission_id = submission['sid']
         user.submission_uuid = submission['uuid']
-        #user.member_id = mid
-      #else
-        #status = 'Submission member id mismatch.'
-        #user.err = 'Existing member id: ' + mid.to_s
-      #end
+        user.member_id = mid
+        #user.verify_import_submission(webform_uuid)
+      else
+        status = 'Error'
+        user.err = 'Submission member id mismatch. Existing member id: ' + mid.to_s
+      end
     rescue => e
       user.err = e
       status = 'Submission not found, creating...'

@@ -13,12 +13,13 @@ class VerifyImportSubmission
       user.err = e
     else
       if submission['user_uuid'] == user.uuid
-        #if user.member_id == 0 || submission['data']['org__sequential_id__org_webform'].first.to_i == user.member_id
+        if submission['data']['org__sequential_id__org_webform'].first.to_i == user.member_id
           user.status = 'Verification: Submission assigned to user.'
-        #else
-          #user.status = 'Verification: Submission member id mismatch'
-          #user.err = 'Existing member id for submission: ' + submission['data']['org__sequential_id__org_webform'].to_s
-        #end
+          #user.verify_import_roles
+        else
+          user.status = 'Verification: Submission member id mismatch'
+          user.err = 'Existing member id for submission: ' + submission['data']['org__sequential_id__org_webform'].to_s
+        end
       else
         user.status = 'Verification: Submission not assigned to correct user.'
         user.err = 'Submission not assigned to user.'

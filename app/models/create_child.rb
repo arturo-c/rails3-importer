@@ -14,14 +14,14 @@ class CreateChild
       more_params[:email] = user.email if user.email
       u = client.user_create_child(parent.uuid, user.first_name, user.last_name, user.birthday, user.gender, more_params)
     rescue => e
-      status = 'Error creating child'
+      status = 'Error'
       user.err = e
     else
       if u['uuid']
         user.uuid = u['uuid']
       else
-        status = 'Error creating child'
-        user.err = 'User not returned'
+        status = 'Error'
+        user.err = 'Error creating child User not returned'
       end
     ensure
       user.status = 'Create Child: ' + status
