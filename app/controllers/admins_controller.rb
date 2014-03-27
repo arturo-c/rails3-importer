@@ -43,7 +43,7 @@ class AdminsController < ApplicationController
 
     if @group.webforms.empty?
       client = AllPlayers::Client.new(ENV["HOST"])
-      client.prepare_access_token(@admin.token, @admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+      client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
       @webforms = client.group_webforms_list(@group.uuid)
       @webforms.each do |uuid, name|
         @group.webforms.build(:uuid => uuid, :name => name)
