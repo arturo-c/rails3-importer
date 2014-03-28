@@ -6,7 +6,7 @@ if @env == 'production'
   shared_path = "#{@dir}/shared"
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
   stdout_path "#{shared_path}/log/unicorn.stdout.log"
-  working_directory "#{@env}/current"
+  working_directory "mnt/apci/usar_importer/current"
 else
   listen "#{@dir}/tmp/unicorn.sock", :backlog => 64
 end
