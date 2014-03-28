@@ -1,6 +1,6 @@
 # config/unicorn.rb
 @env = ENV['RAILS_ENV'] || 'development'
-@dir = ENV['USER_IMPORTER_ROOT'] || '/mnt/apci/usar_importer'
+@dir = '/mnt/apci/usar_importer'
 if @env == 'production'
   listen 80, :tcp_nopush => true
   shared_path = "#{@dir}/shared"
