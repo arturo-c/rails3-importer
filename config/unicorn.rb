@@ -1,7 +1,7 @@
 # config/unicorn.rb
 @env = ENV['RAILS_ENV'] || 'development'
 if @env == 'production'
-  listen 80, :tcp_nopush => true
+  listen 3000, :tcp_nopush => true
   shared_path = "/mnt/apci/usar_importer/shared"
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
   stdout_path "#{shared_path}/log/unicorn.stdout.log"
