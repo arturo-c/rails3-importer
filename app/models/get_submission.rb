@@ -20,7 +20,7 @@ class GetSubmission
       elsif member_id.kind_of?(Array)
         mid = member_id.first.to_i
       end
-      memberid = user.data_fields['org__sequential_id__org_webform']
+      memberid = user.webform_fields['org__sequential_id__org_webform']
       if !memberid || (memberid && mid == memberid)
         status = 'Submission completed.'
         user.submission_id = submission['sid']

@@ -117,7 +117,7 @@ class ProcessImport
         v = key.split 'webform_'
         admin.webform_fields.each do |k, s|
           if s.parameterize.underscore == v[1].parameterize.underscore
-            r['data_fields'][k] = value
+            r['webform_fields'][k] = value
           end
         end
         r.delete(key)

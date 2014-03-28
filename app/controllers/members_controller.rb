@@ -243,7 +243,7 @@ class MembersController < ApplicationController
     @@full_members.each do |member|
       #member.get_unique_submission
       testing = {'test1' => 'blah', 'test2' => 'zing'}
-      submission = client.create_submission(current_user.webform, member.data_fields.symbolize_keys, member.uuid)
+      submission = client.create_submission(current_user.webform, member.webform_fields.symbolize_keys, member.uuid)
       testing
     end
     @members = @@full_members
@@ -441,13 +441,13 @@ class MembersController < ApplicationController
     r[:err] = errors
     r[:status] = 'Invalid Data' unless errors == ''
 
-    r[:data_fields] = Hash.new
+    r[:webform_fields] = Hash.new
     r.each do |key, value|
       if key.inspect.include? 'webform_'
         v = key.inspect.split ':webform_'
         admin.webform_fields.each do |k, s|
           if s.parameterize.underscore == v[1]
-            r[:data_fields][k] = value
+            r[:webform_fields][k] = value
           end
         end
       end

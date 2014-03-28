@@ -16,7 +16,7 @@ module MembersHelper
           flags << flag
         end
         data_fields = Array.new
-        data = m.data_fields
+        data = m.webform_fields
         @admin.webform_fields.each do |key, name|
           data_fields << data[key] unless data[key].nil?
           data_fields << '' if data[key].nil?

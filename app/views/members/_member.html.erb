@@ -14,7 +14,9 @@
     <tr>
 <% end %>
 <% @admin.webform_fields.each do |key, value| -%>
-  <td><%= member.data_fields[key] unless member.data_fields[key].nil? %></td>
+  <% if member.webform_fields.respond_to?(:webform_fields) -%>
+    <td><%= member.webform_fields[key] unless member.webform_fields[key].nil? %></td>
+  <% end -%>
 <% end -%>
 <td><%= member.email %></td>
 <td><%= member.first_name %></td>

@@ -8,7 +8,11 @@ class CreateSubmission
     user.err = nil
     status = 'Done'
     begin
-      submission = client.create_submission(webform_uuid, user.data_fields.symbolize_keys, user.uuid)
+      unless user.webform_fields['org__sequential_id__org_webform']
+        user.webform_fields['org__sequential_id__org_webform'] = 'Auto Generated'
+      end
+
+      submission = client.create_submission(webform_uuid, user.webform_fields.symbolize_keys, user.uuid)
       if submission['data']['org__sequential_id__org_webform']
         member_id = submission['data']['org__sequential_id__org_webform']
         if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
