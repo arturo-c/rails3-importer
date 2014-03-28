@@ -7,7 +7,7 @@
     <li>
     <%= link_to 'Groups', groups_path %>
     </li>
-    <% if current_user.organization && current_user.webform_fields %>
+    <% if current_user.organization && !current_user.data_fields.empty? %>
         <li>
         <%= link_to 'Members', members_path %>
         </li>
