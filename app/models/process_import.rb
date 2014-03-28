@@ -111,7 +111,7 @@ class ProcessImport
     r['err'] = errors
     r['status'] = 'Invalid Data' unless errors == ''
 
-    r['data_fields'] = Hash.new
+    r['webform_fields'] = Hash.new
     r.map do |key, value|
       if key.include? 'webform_'
         v = key.split 'webform_'
