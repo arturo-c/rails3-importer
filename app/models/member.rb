@@ -30,7 +30,7 @@ class Member
   field :old_group, type: String, default: -> { '' }
   field :old_user_uuid, type: String, default: -> { '' }
   field :create_new_submission, type: Boolean, default: -> { false }
-  field :webform_fields, type: Array, default: -> { Hash.new }
+  field :webform_fields, type: Hash
 
   def get_member_uuid
     Resque.enqueue(GetMemberUuid, self.id)
