@@ -17,7 +17,7 @@ describe SessionsController do
   end
 
   describe "GET 'new'" do
-    it "redirectes users to authentication" do
+    it 'redirectes users to authentication' do
       get 'new'
       assert_redirected_to '/auth/allplayers'
     end

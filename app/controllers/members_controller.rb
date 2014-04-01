@@ -1,6 +1,10 @@
 class MembersController < ApplicationController
   helper_method :sort_column, :sort_direction, :sortable
-
+  before_filter do
+    if !user_signed_in?
+      redirect_to root_url
+    end
+  end
   # GET /members
   # GET /members.json
   def index

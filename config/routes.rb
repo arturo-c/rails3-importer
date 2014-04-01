@@ -4,6 +4,7 @@ Rails3Importer::Application.routes.draw do
   resources :groups
   resources :webforms
   resources :admins, :only => [:index, :show, :edit, :update, :create ]
+  resources :home, :only => [:index]
 
   root :to => "admins#index"
   match '/auth/:provider/callback' => 'sessions#create'

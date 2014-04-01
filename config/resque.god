@@ -1,17 +1,16 @@
-rails_env   = ENV['RAILS_ENV']  || "production"
-rails_root  = ENV['RAILS_ROOT']
+rails_env   = ENV['RAILS_ENV']  || 'development'
+rails_root  = ENV['USAT_IMPORTER_ROOT'] || (rails_env == 'production') ? '/mnt/apci/usat_importer/current' : '/mnt/apci/usat_importer'
 num_workers = 10
-#God.pid_file_directory = rails_root
 queue = 'create_group_template,process_group_import,create_group,clone_forms,clone_group,create_groups_below,create_one_group,set_store_payee'
 num_workers.times do |num|
   God.watch do |w|
     w.name          = "usat-#{num}"
-    w.group         = "usat"
+    w.group         = 'usat'
     w.interval      = 30.seconds
     w.env           = { 'RAILS_ENV' => rails_env,
                         'QUEUE'     => queue }
     w.dir           = "#{rails_root}"
-    w.start         = "rake resque:work"
+    w.start         = 'rake resque:work'
     w.start_grace   = 10.seconds
     w.log           = File.expand_path(File.join(File.dirname(__FILE__), '..','log','resque-worker.log'))
 
