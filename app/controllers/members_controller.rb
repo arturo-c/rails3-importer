@@ -117,10 +117,16 @@ class MembersController < ApplicationController
       format.json { head :no_content }
     end
   end
- 
+
   def destroy_all
-    @members = @@full_members
-    @members.each do |member|
+    query = Member.all.where(:admin_uuid => session[:user_uuid])
+    # Reset filters.
+    if params.has_key?(:filter)
+      query = process_filter(query, params)
+      members = query
+    end
+
+    members.each do |member|
       member.destroy
     end
     render :live
