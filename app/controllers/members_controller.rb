@@ -1,28 +1,20 @@
 class MembersController < ApplicationController
   helper_method :sort_column, :sort_direction, :sortable
 
+  before_filter do
+    filter = session[:filter] if session[:filter]
+    session[:filter] = filter = {:filter => params[:filter]} if params[:filter]
+    session[:filter] = filter = nil if params[:commit] == 'Reset Filters'
+    @members = Member.all.where(:admin_uuid => session[:user_uuid])
+    # Reset filters.
+    @members = process_filter(@members, filter) if filter
+  end
+
   # GET /members
   # GET /members.json
   def index
-    query = Member.all.where(:admin_uuid => session[:user_uuid]).order_by(sort_column + ' ' + sort_direction)
-
-    # Reset filters.
-    if params[:commit] == 'Reset Filters'
-      params.delete('filter')
-    elsif params.has_key?(:filter)
-      query = process_filter(query, params)
-      @@csv_members = query
-    end
-
-    # Introducing class variable for filters so that filters remain consistent
-    # throughout ajax calls.
-    @@full_members = query
-    @@csv_members ||= @@full_members
-
-    @@members = @members = query.page(params[:page]).per(params[:per_page])
-
-    # Take the pagination out of the csv export.
-    @members = @@csv_members if params[:format] == 'csv'
+    session[:filter] = nil unless params[:filter]
+    @members = @members.page(params[:page]).per(params[:per_page]) unless params[:format] == 'csv'
 
     # Retrieve the webform fields
     @webform = {}
@@ -119,21 +111,13 @@ class MembersController < ApplicationController
   end
 
   def destroy_all
-    query = Member.all.where(:admin_uuid => session[:user_uuid])
-    # Reset filters.
-    if params.has_key?(:filter)
-      query = process_filter(query, params)
-      members = query
-    end
-
-    members.each do |member|
+    @members.each do |member|
       member.destroy
     end
     render :live
   end
 
   def delete_members
-    @members = @@full_members
     @members.each do |member|
       member.delete_member
     end
@@ -141,7 +125,6 @@ class MembersController < ApplicationController
   end
 
   def unblock_members
-    @members = @@full_members
     @members.each do |member|
       member.unblock_member
     end
@@ -149,7 +132,7 @@ class MembersController < ApplicationController
   end
 
   def get_duplicates
-    @@full_members = @members = Member.find(:all, :group => [:first_name, :last_name, :birthday, :group_uuid], :having => "count(*) > 1" )
+    @members = Member.find(:all, :group => [:first_name, :last_name, :birthday, :group_uuid], :having => "count(*) > 1" )
     render :live
   end
 
@@ -160,7 +143,6 @@ class MembersController < ApplicationController
   end
 
   def export_all
-    @members = @@full_members
     @members.each do |member|
       member.get_member_uuid
     end
@@ -176,115 +158,101 @@ class MembersController < ApplicationController
   end
 
   def clear_errors
-    @members = @@members
     @members.update_all(:err => nil)
     render :live
   end
 
   def live
-    @@members ||= @members
-    @members = @@members
+    @members
   end
 
   def add_members_job
-    @@full_members.each do |member|
+    @members.each do |member|
       member.add_to_group
     end
-    @members = @@full_members
     render :live
   end
 
   def add_to_group_and_subgroups
-    @@full_members.each do |member|
+    @members.each do |member|
       member.add_to_group_and_subgroups
     end
-    @members = @@full_members
     render :live
   end
 
   def remove_from_group
-    @@full_members.each do |member|
+    @members.each do |member|
       member.remove_from_group
     end
-    @members = @@full_members
     render :live
   end
 
   def remove_from_group_and_subgroups
-    @@full_members.each do |member|
+    @members.each do |member|
       member.remove_from_group_and_subgroups
     end
-    @members = @@full_members
     render :live
   end
 
 
   def get_roles
-    @@full_members.each do |member|
+    @members.each do |member|
       member.get_group_member_roles
     end
-    @members = @@full_members
     render :live
   end
 
   def get_submissions
-    @@full_members.each do |member|
+    @members.each do |member|
       member.get_submission(current_user.webform)
     end
-    @members = @@full_members
     render :live
   end
 
   def delete_submissions
-    @@full_members.each do |member|
+    @members.each do |member|
       member.delete_submission(current_user.webform)
     end
-    @members = @@full_members
     render :live
   end
 
   def get_unique_submissions
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
-    @@full_members.each do |member|
+    @members.each do |member|
       #member.get_unique_submission
       testing = {'test1' => 'blah', 'test2' => 'zing'}
       submission = client.create_submission(current_user.webform, member.webform_fields.symbolize_keys, member.uuid)
       testing
     end
-    @members = @@full_members
     render :live
   end
 
   def get_webform_data
-    @@full_members.each do |member|
+    @members.each do |member|
       member.get_webform_data(current_user.webform)
     end
-    @members = @@full_members
     render :live
   end
 
   def verify_import_roles
-    @@full_members.each do |member|
+    @members.each do |member|
       member.verify_import_roles
     end
-    @members = @@full_members
     render :live
   end
 
   def verify_import_submission
-    @@full_members.each do |member|
+    @members.each do |member|
       member.verify_import_submission(current_user.webform)
     end
-    @members = @@full_members
     render :live
   end
 
   def assign_all
-    @@full_members.each do |member|
+    @members.each do |member|
       member.assign_submission(current_user.webform)
     end
-    @members = @@full_members
     render :live
   end
 
@@ -295,11 +263,10 @@ class MembersController < ApplicationController
   end
 
   def set_completed
-    @@full_members.each do |member|
+    @members.each do |member|
       member.status = params[:set_status][:status]
       member.save
     end
-    @members = @@full_members
     render :live
   end
 

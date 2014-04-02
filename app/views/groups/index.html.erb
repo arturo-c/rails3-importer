@@ -32,8 +32,8 @@
       <th>Groups above</th>
       <th>Status</th>
       <th>Errors</th>
-      <th><%= link_to 'Delete All', params.merge(:action => :destroy_all), :remote => true %></th>
-      <th><%= link_to 'Import All', params.merge(:action => :export_all), :remote => true %></th>
+      <th><%= link_to 'Delete All', params.merge({:action => :destroy_all}), :remote => true %></th>
+      <th><%= link_to 'Import All', params.merge({:action => :export_all}), :remote => true %></th>
       <th></th>
       <th></th>
       <th></th>
