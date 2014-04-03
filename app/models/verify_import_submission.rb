@@ -13,7 +13,7 @@ class VerifyImportSubmission
       user.err = e
     else
       if submission['user_uuid'] == user.uuid
-        if (submission['data']['org__sequential_id__org_webform'].to_i == user.member_id.to_i || !user.member_id || user.member_id == 0)
+        if (submission['data']['org__sequential_id__org_webform'].to_i == user.member_id.to_i || user.member_id.nil? || user.member_id.to_i == 0)
           user.status = 'Verification: Submission assigned to user.'
           #user.verify_import_roles
         else
