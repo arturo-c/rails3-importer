@@ -15,8 +15,8 @@ class AdminsController < ApplicationController
       @group = @admin.groups.find_by_name(@admin.organization)
       @group = @admin.groups.find_by_name(org) unless org.nil?
       @admin.update_attributes(:organization => org) unless org.nil?
-      @admin.get_org_groups(@group.uuid)
       if params[:admin][:webform] && @admin.organization
+        @admin.get_org_groups(@group.uuid)
         webform = @group.webforms.find(params[:admin][:webform])
         client = AllPlayers::Client.new(ENV["HOST"])
         client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})

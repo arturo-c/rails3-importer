@@ -8,12 +8,14 @@ class GetSubmission
     status = 'Done'
     user.err = nil
     begin
+      user.update_attributes(:member_id => user.data_fields['org__sequential_id__org_webform'])
       if user.create_new_submission
         user.create_submission(webform_uuid)
         status = 'Overwriting submission'
         return
       end
       submission = client.get_submission(webform_uuid, nil, user.uuid)
+      submission = client.get_submission_by_uuid(submission['uuid'])
       member_id = submission['data']['org__sequential_id__org_webform']
       if member_id.kind_of?(Fixnum) || member_id.kind_of?(String)
         mid = member_id.to_i
