@@ -29,6 +29,9 @@ class Group
   field :status, type: String
   field :err, type: String
   field :group_above, type: String
+  field :due_date, type: String
+  field :user_email, type: String
+  field :group_above_name, type: String
 
   index({ uuid: 1 } , { unique: true })
 

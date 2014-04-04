@@ -1,14 +1,14 @@
 # config/unicorn.rb
 @env = ENV['RAILS_ENV'] || 'development'
-@dir = ENV['GROUP_IMPORTER_ROOT'] || '/mnt/apci/usat_importer'
+dir = ENV['GROUP_IMPORTER_ROOT'] || '/mnt/apci/usat_importer'
 if @env == 'production'
   listen 80, :tcp_nopush => true
-  shared_path = "#{@dir}/shared"
+  shared_path = "#{dir}/shared"
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
   stdout_path "#{shared_path}/log/unicorn.stdout.log"
-  working_directory "#{@env}/current"
+  working_directory "#{dir}/current"
 else
-  listen "#{@dir}/tmp/unicorn.sock", :backlog => 64
+  listen "#{dir}/tmp/unicorn.sock", :backlog => 64
 end
 worker_processes 2
 preload_app true

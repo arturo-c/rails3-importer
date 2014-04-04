@@ -35,6 +35,9 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = "random"
+  config.include(OmniauthMacros)
+  config.include Rails.application.routes.url_helpers
+  config.include Capybara::DSL
   
   config.before(:suite) do
     DatabaseCleaner.strategy = :truncation
@@ -46,3 +49,4 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 end
+OmniAuth.config.test_mode = true
