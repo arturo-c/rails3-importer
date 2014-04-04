@@ -7,7 +7,8 @@ class VerifyImportSubmission
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     user.err = nil
     begin
-      submission = client.get_submission_by_uuid(user.submission_uuid)
+      submission = client.get_submission(webform_uuid, nil, user.uuid)
+      submission = client.get_submission_by_uuid(submission['uuid'])
     rescue => e
       user.status = 'Verification: Error getting user webform submission.'
       user.err = e
