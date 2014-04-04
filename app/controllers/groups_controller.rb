@@ -153,6 +153,14 @@ class GroupsController < ApplicationController
   end
 
   def destroy_all
+    @groups = @@full_groups
+    @groups.each do |group|
+      group.destroy
+    end
+    @groups == @@full_groups = nil
+  end
+
+  def destroy_all_allplayers
     @groups = @@csv_groups
     @groups.each do |group|
       group.delete_group
@@ -167,8 +175,8 @@ class GroupsController < ApplicationController
   end
 
   def live
-    @@members ||= @members
-    @members = @@members
+    @@groups ||= @groups
+    @groups = @@groups
   end
 
   def export_all
