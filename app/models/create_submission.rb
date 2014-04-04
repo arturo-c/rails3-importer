@@ -11,7 +11,6 @@ class CreateSubmission
       unless user.data_fields['org__sequential_id__org_webform']
         user.data_fields['org__sequential_id__org_webform'] = 'Auto Generated'
       end
-
       submission = client.create_submission(webform_uuid, user.data_fields.symbolize_keys, user.uuid)
       if submission['data']['org__sequential_id__org_webform']
         member_id = submission['data']['org__sequential_id__org_webform']
@@ -20,13 +19,15 @@ class CreateSubmission
         elsif member_id.kind_of?(Array)
           mid = member_id.first.to_i
         end
-        user.member_id = mid
       end
-      user.submission_id = submission['sid']
-      user.submission_uuid = submission['uuid']
     rescue => e
       user.err = 'Error creating submission' + e
       status = 'Error'
+    else
+      user.submission_id = submission['sid']
+      user.submission_uuid = submission['uuid']
+      user.member_id = mid
+      user.data_fields['org__sequential_id__org_webform'] = mid
     ensure
       user.status = 'Create Submission: ' + status
       user.save

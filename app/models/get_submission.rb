@@ -8,7 +8,7 @@ class GetSubmission
     status = 'Done'
     user.err = nil
     begin
-      user.update_attributes(:member_id => user.data_fields['org__sequential_id__org_webform'])
+      user.update_attributes(:member_id => user.data_fields['org__sequential_id__org_webform']) unless user.member_id
       if user.create_new_submission
         user.create_submission(webform_uuid)
         status = 'Overwriting submission'
@@ -23,7 +23,7 @@ class GetSubmission
         mid = member_id.first.to_i
       end
       memberid = user.data_fields['org__sequential_id__org_webform']
-      if memberid.nil? || (memberid && mid == memberid)
+      if memberid.nil? || (memberid && mid == memberid) || memberid == 'Auto Generated'
         status = 'Submission completed.'
         user.submission_id = submission['sid']
         user.submission_uuid = submission['uuid']
