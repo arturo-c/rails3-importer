@@ -28,6 +28,7 @@ class GetSubmission
         user.submission_id = submission['sid']
         user.submission_uuid = submission['uuid']
         user.member_id = mid
+        user.data_fields['org__sequential_id__org_webform'] = mid
         #user.verify_import_submission(webform_uuid)
       else
         status = 'Error'
