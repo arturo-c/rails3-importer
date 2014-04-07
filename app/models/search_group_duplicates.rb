@@ -13,7 +13,7 @@ class SearchGroupDuplicates
       group.status = 'No group duplicates'
     else
       group.err = 'Dup Group found: ' + g[0]['uuid']
-      groups = client.user_groups_list(group.user_uuid)
+      groups = client.user_groups_list(group.user_uuid, {:limit => 0})
       groups.each do |gr|
         if gr['title'] == g[0]['title']
           group.uuid = g[0]['uuid']
