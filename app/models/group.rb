@@ -134,6 +134,8 @@ class Group
           count = count + 1
           more_params[:web_address] = self.title.parameterize.underscore + '_' + count.to_s
           retry
+        else
+          self.err = e.error
         end
       end
     rescue RestClient::NotAcceptable => e
@@ -141,6 +143,8 @@ class Group
         count = count + 1
         more_params[:web_address] = self.title.parameterize.underscore + '_' + count.to_s
         retry
+      else
+        self.err = e.to_s
       end
     ensure
       if ap_group

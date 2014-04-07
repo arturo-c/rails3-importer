@@ -5,9 +5,9 @@ class CreateOneGroup
     begin
       group = Group.find(group_id)
       group.create_import
+      raise 'Group not created' unless group.uuid
     rescue => e
       group.status = 'Error creating group'
-      group.err = e
     else
       group.status = 'Created group'
       group.err = nil

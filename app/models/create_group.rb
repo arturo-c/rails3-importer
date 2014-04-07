@@ -6,8 +6,8 @@ class CreateGroup
     admin = Admin.find(admin_id)
     begin
       group.create_import
+      raise 'Group not created' unless group.uuid
     rescue => e
-      group.err = e.to_s
       group.status = 'Error creating group'
     else
       group.err = nil
