@@ -200,7 +200,7 @@ class GroupsController < ApplicationController
   end
 
   def search_duplicates
-    @groups = @@groups
+    @groups = @@csv_groups
     @groups.each do |group|
       group.search_duplicates
     end
