@@ -104,6 +104,10 @@ class Group
     return @subgroups
   end
 
+  def search_duplicates
+    Resque.enqueue(SearchGroupDuplicates, self.id)
+  end
+
   def create_import
     client = AllPlayers::Client.new(ENV["HOST"])
     client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})

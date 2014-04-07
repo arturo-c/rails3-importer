@@ -199,6 +199,13 @@ class GroupsController < ApplicationController
     @groups
   end
 
+  def search_duplicates
+    @groups == @@groups
+    @groups.each do |group|
+      group.search_duplicates
+    end
+  end
+
   def get_members
     @group = Group.find(params[:id])
     @group.get_subgroups_members
