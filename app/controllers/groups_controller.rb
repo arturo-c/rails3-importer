@@ -200,10 +200,11 @@ class GroupsController < ApplicationController
   end
 
   def search_duplicates
-    @groups == @@groups
+    @groups = @@groups
     @groups.each do |group|
       group.search_duplicates
     end
+    @groups
   end
 
   def get_members
