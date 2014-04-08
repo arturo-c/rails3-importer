@@ -16,7 +16,7 @@ class SearchGroupDuplicates
       groups = client.user_groups_list(group.user_uuid, {:limit => 0})
       groups.each do |gr|
         if gr['title'] == g[0]['title']
-          group.uuid = g[0]['uuid']
+          group.uuid = gr['uuid']
         end
       end
       group.status = 'Group duplicate process end'

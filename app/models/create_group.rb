@@ -4,7 +4,17 @@ class CreateGroup
   def self.perform(group_id, admin_id)
     group = Group.find(group_id)
     admin = Admin.find(admin_id)
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
     begin
+      unless group.user_uuid
+        email = group.title.parameterize.underscore + '@allplayers.net'
+        u = client.user_create(email, group.title, 'Admin', '1980-01-01', 'm')
+        raise 'Group admin not created' unless u['uuid']
+        group.user_uuid = u['uuid']
+        group.user_email = email
+      end
       group.create_import
       raise 'Group not created' unless group.uuid
     rescue => e
