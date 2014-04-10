@@ -23,7 +23,7 @@ class AdminsController < ApplicationController
         form = client.get_webform(webform.uuid)
         fields = Hash.new
         form['webform']['components'].each do |cid, value|
-          fields[value['form_key']] = value['name']
+          fields[value['form_key']] = value['name'] unless (value['type'] == 'fieldset')
         end
         @admin.webform_fields = fields
         @admin.webform = webform.uuid
