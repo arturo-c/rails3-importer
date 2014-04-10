@@ -10,7 +10,7 @@ class CreateGroup
     begin
       unless group.user_uuid
         email = group.title.parameterize.underscore + '@allplayers.net'
-        u = client.user_create(email, group.title, 'Admin', '1980-01-01', 'm')
+        u = client.user_create(email, group.title, 'Admin', '1980-01-01', 'm', {:password => 'test123'})
         raise 'Group admin not created' unless u['uuid']
         group.user_uuid = u['uuid']
         group.user_email = email
