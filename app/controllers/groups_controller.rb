@@ -185,9 +185,9 @@ class GroupsController < ApplicationController
       if group.payee
         template = Group.where(:uuid => group.template).first
         toplevel = Group.where(:uuid => group.payee).first
-        group.create_one_group(session[:user_id], template.id, toplevel.id)
+        group.create_one_group(session[:user_id], template.id, toplevel.id) unless (group.status == 'Template' || group.uuid)
       else
-        group.create_group(session[:user_id])
+        group.create_group(session[:user_id]) unless (group.status == 'Template' || group.uuid)
       end
     end
     @groups
