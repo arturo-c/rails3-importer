@@ -1,0 +1,44 @@
+class GetGroupsHierarchy
+  @queue = :get_groups_hierarchy
+
+  def self.perform(group_id, admin_id)
+    group = Group.find(group_id)
+    admin = Admin.find(admin_id)
+    client = AllPlayers::Client.new(ENV["HOST"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
+    client.add_headers({:NOTIFICATION_BYPASS => 1, :API_USER_AGENT => 'AllPlayers-Import-Client'})
+    a = admin.groups
+    begin
+      if group.payee
+        top_level = Group.where(:uuid => group.payee).first
+      else
+        top_level = group
+        template = Group.find(admin.group_template)
+        if template
+          group.update_attributes(:template => template.uuid)
+        end
+      end
+      groups_below = a.where(:group_above => group.template)
+      groups_below.each do |g|
+        p = g.dup
+        gr = client.group_search(:search => top_level.title + ' ' + g.title)
+        p.update_attributes({
+                              :uuid => gr[0]['uuid'],
+                              :group_above => group.uuid,
+                              :template => p.uuid,
+                              :payee => top_level.uuid,
+                              :title => top_level.title + ' ' + g.title,
+                              :address_city => top_level.address_city,
+                              :address_state => top_level.address_state,
+                              :address_zip => top_level.address_zip,
+                              :address_street => top_level.address_street,
+                              :user_uuid => group.user_uuid,
+                            })
+        p.get_groups_hierarchy(admin_id) if g[:has_children] == '1'
+      end
+    ensure
+      group.save
+    end
+  end
+
+end

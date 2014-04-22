@@ -51,6 +51,7 @@ Rails3Importer::Application.routes.draw do
   match '/new_groups/destroy_all_allplayers' => 'groups#destroy_all_allplayers'
   match '/new_groups/live' => 'groups#live'
   match '/new_groups/search_duplicates' => 'groups#search_duplicates'
+  match '/new_groups/get_groups_hierarchy' => 'groups#get_groups_hierarchy'
   match '/groups/verify_import' => 'groups#verify_group_import'
   match '/new_groups/get_groups_uuid' => 'groups#get_groups_uuid'
   match '/new_groups/set_store_payee' => 'groups#set_store_payee'

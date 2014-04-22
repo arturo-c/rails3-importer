@@ -17,6 +17,7 @@
 <%= link_to 'Clone Groups', {:action => :clone_groups}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Delete All AllPlayers Groups', {:action => :destroy_all_allplayers, :confirm => 'Delete groups on allplayers?'}, {:class => 'btn btn-small', :remote => true} %>
 <%= link_to 'Search Duplicates', {:action => :search_duplicates}, {:class => 'btn btn-small', :remote => true} %>
+<%= link_to 'Get Groups Hierarchy', {:action => :get_groups_hierarchy}, {:class => 'btn btn-small', :remote => true} %>
 <br />
 <div id="paginator">
   <%= paginate @groups, :remote => true %>

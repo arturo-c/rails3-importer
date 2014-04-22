@@ -207,6 +207,14 @@ class GroupsController < ApplicationController
     @groups
   end
 
+  def get_groups_hierarchy
+    @groups = @@csv_groups
+    @groups.each do |group|
+      group.get_groups_hierarchy(session[:user_id])
+    end
+    @groups
+  end
+
   def get_members
     @group = Group.find(params[:id])
     @group.get_subgroups_members
