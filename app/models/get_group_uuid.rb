@@ -5,7 +5,7 @@ class GetGroupUuid
     group = Group.find(group_id)
     admin = Admin.find(admin_id)
     client = AllPlayers::Client.new(ENV["HOST"])
-    client.prepare_access_token(admin.token, admin.secret, ENV["OMNIAUTH_PROVIDER_KEY"], ENV["OMNIAUTH_PROVIDER_SECRET"])
+    client.add_headers({:Authorization => ActionController::HttpAuthentication::Basic.encode_credentials(ENV["ADMIN_EMAIL"], ENV["ADMIN_PASSWORD"])})
     begin
       g = client.group_search({:search => group.title})
       raise unless g[0]['uuid']
