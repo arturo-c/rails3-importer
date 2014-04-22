@@ -13,12 +13,9 @@ class GetGroupsHierarchy
         top_level = Group.where(:uuid => group.payee).first
       else
         top_level = group
-        template = Group.find(admin.group_template)
-        if template
-          group.update_attributes(:template => template.uuid)
-        end
       end
-      groups_below = a.where(:group_above => group.template)
+      template = Group.where(:uuid => group.template).first
+      groups_below = a.where(:group_above => template.id)
       groups_below.each do |g|
         p = g.dup
         gr = client.group_search(:search => top_level.title + ' ' + g.title)
@@ -38,8 +35,10 @@ class GetGroupsHierarchy
       end
     rescue => e
       group.err = e.to_s
+      group.status = 'Error getting hierarchy'
     else
       group.err = nil
+      group.status = 'Done'
     ensure
       group.save
     end
