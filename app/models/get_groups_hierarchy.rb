@@ -11,13 +11,12 @@ class GetGroupsHierarchy
     begin
       if group.payee
         top_level = Group.where(:uuid => group.payee).first
+        template = Group.where(:uuid => group.template).first
+        groups_below = a.where(:group_above => template.id)
       else
         top_level = group
-        template = Group.find(admin.group_template)
-        group.update_attributes(:template => template.uuid)
+        groups_below = a.where(:group_above => admin.group_template)
       end
-      template = Group.where(:uuid => group.template).first
-      groups_below = a.where(:group_above => template.id)
       groups_below.each do |g|
         p = g.dup
         gr = client.group_search(:search => top_level.title + ' ' + g.title)
