@@ -84,7 +84,7 @@ class Group
   end
 
   def get_groups_hierarchy(admin_id)
-    Resque.enqueue(GetGroupsHierarhcy, self.id, admin_id)
+    Resque.enqueue(GetGroupsHierarchy, self.id, admin_id)
   end
 
   def create_one_group(admin_id, group_template_id, top_level_id)
