@@ -36,6 +36,10 @@ class GetGroupsHierarchy
                             })
         p.get_groups_hierarchy(admin_id) if g[:has_children] == '1'
       end
+    rescue => e
+      group.err = e.to_s
+    else
+      group.err = nil
     ensure
       group.save
     end
