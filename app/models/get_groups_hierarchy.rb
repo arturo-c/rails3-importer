@@ -15,6 +15,8 @@ class GetGroupsHierarchy
         groups_below = a.where(:group_above => template.id)
       else
         top_level = group
+        template = Group.find(admin.group_template)
+        group.update_attributes({:template => template.uuid})
         groups_below = a.where(:group_above => admin.group_template)
       end
       groups_below.each do |g|
