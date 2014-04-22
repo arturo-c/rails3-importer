@@ -1,7 +1,7 @@
 rails_env   = ENV['RAILS_ENV']  || 'development'
 rails_root  = ENV['USAT_IMPORTER_ROOT'] || (rails_env == 'production') ? '/mnt/apci/usat_importer/current' : '/mnt/apci/usat_importer'
 num_workers = 5
-queue = 'search_group_duplicates,create_group_template,process_group_import,create_group,clone_forms,clone_group,create_groups_below,create_one_group,set_store_payee'
+queue = 'get_group_uuid,search_group_duplicates,create_group_template,process_group_import,create_group,clone_forms,clone_group,create_groups_below,create_one_group,set_store_payee'
 num_workers.times do |num|
   God.watch do |w|
     w.name          = "usat-#{num}"
