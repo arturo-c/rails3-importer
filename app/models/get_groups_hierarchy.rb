@@ -30,6 +30,7 @@ class GetGroupsHierarchy
                               :address_zip => top_level.address_zip,
                               :address_street => top_level.address_street,
                               :user_uuid => group.user_uuid,
+                              :status => 'Done'
                             })
         p.get_groups_hierarchy(admin_id) if g[:has_children] == '1'
       end
