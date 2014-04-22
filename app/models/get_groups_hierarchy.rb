@@ -13,7 +13,8 @@ class GetGroupsHierarchy
         top_level = Group.where(:uuid => group.payee).first
       else
         top_level = group
-        group.update_attributes({:template => admin.group_template})
+        template = Group.find(admin.group_template)
+        group.update_attributes(:template => template.uuid)
       end
       template = Group.where(:uuid => group.template).first
       groups_below = a.where(:group_above => template.id)
