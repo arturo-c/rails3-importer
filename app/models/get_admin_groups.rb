@@ -10,8 +10,8 @@ class GetAdminGroups
       user_groups = user.groups
       unless groups == 'No Content'
         groups.each do |g|
-          #group = user_groups.find_by_uuid(g['uuid'])
-          #if group.nil?
+          group = user_groups.find_by_uuid(g['uuid'])
+          if group.nil?
             ap_group = {
               :uuid => g['uuid'],
               :title => g['title'],
@@ -20,7 +20,7 @@ class GetAdminGroups
               :status => 'AllPlayers'
             }
             user_groups.create(ap_group)
-          #end
+          end
         end
         user.status = 'Updated at ' + Date.today.to_s
         user.err = nil
