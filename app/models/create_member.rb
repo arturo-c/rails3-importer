@@ -15,7 +15,7 @@ class CreateMember
         uuid = u['uuid']
       end
       user.update_attributes(:uuid => uuid, :status => 'Imported', :err => nil)
-      user.add_to_group if user.group_name
+      user.add_to_group if (user.group_uuid && user.uuid)
     rescue => e
       user.update_attributes(:status => 'Error importing user.')
       user.update_attributes(:err => e)
