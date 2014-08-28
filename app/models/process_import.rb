@@ -36,9 +36,9 @@ class ProcessImport
     r['status'] = 'Processing'
     errors = ''
     if r['gender']
-      r['gender'] = r['gender'].downcase
-      r['gender'] = 'm' if r['gender'].casecmp('male') == 0
-      r['gender'] = 'f' if r['gender'].casecmp('female') == 0
+      r['gender'] = r['gender'].to_s.downcase
+      r['gender'] = 'm' if r['gender'].to_s.casecmp('male') == 0
+      r['gender'] = 'f' if r['gender'].to_s.casecmp('female') == 0
       unless r['gender'] == 'm' || r['gender'] == 'f'
         errors += 'Invalid Gender(enter m or f).'
       end
@@ -92,22 +92,22 @@ class ProcessImport
       end
     end
     if r['email']
-      r['email_'] = r['email'].strip.downcase
+      r['email_'] = r['email'].to_s.strip.downcase
     end
     if r['parent_email']
-      r['parent_email_'] = r['parent_email'].strip.downcase
+      r['parent_email_'] = r['parent_email'].to_s.strip.downcase
     end
     if r['first_name']
-      r['first_name_'] = r['first_name'].strip.downcase
+      r['first_name_'] = r['first_name'].to_s.strip.downcase
     else
       errors += 'Missing first name.'
     end
     if r['last_name']
-      r['last_name_'] = r['last_name'].strip.downcase
+      r['last_name_'] = r['last_name'].to_s.strip.downcase
     else
       errors += 'Missing last name.'
     end
-    r['uuid'] = r['uuid'].strip if r['uuid']
+    r['uuid'] = r['uuid'].to_s.strip if r['uuid']
     r['err'] = errors
     r['status'] = 'Invalid Data' unless errors == ''
 
